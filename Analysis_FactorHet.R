@@ -9,7 +9,7 @@ library(FactorHet)
 # setwd(dirname(rstudioapi::getSourceEditorContext()$path))
 
 ### Load Data 
-# cj_tidy <- readRDS("Ukraine Conjoint Data/cj_tidy.rds")
+cj_tidy <- readRDS("Ukraine Conjoint Data/cj_tidy.rds")
 
 # Rename Attributes
 colnames(cj_tidy)[which(colnames(cj_tidy) %in% c(paste0("attr",1:9)))] <-
