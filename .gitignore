@@ -1,0 +1,11 @@
+.Rproj.user
+.Rhistory
+.RData
+.Ruserdata
+
+# Testing Files
+Testing_file.R
+candidate.dta
+fit_FH_2F.rds
+fit_FH_3F.rds
+Ukraine Conjoint Data/
