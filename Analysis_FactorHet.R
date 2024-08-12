@@ -40,6 +40,8 @@ fit_FH_2 <- FactorHet_mbo(formula = y ~ Sold_killed_UKR + Sold_killed_RUS +
                                         choice_order = ~ concept)
 saveRDS(fit_FH_2, "fit_FH_2F.rds")
 fit_FH_2 <- readRDS("fit_FH_2F.rds")
+AIC(fit_FH_2)
+BIC(fit_FH_2)
 
 FactorHet::marginal_AME(fit_FH_2) # fast
 FactorHet::posterior_by_moderators(fit_FH_2) # fast
@@ -60,6 +62,12 @@ fit_FH_3 <- FactorHet_mbo(formula = y ~ Sold_killed_UKR + Sold_killed_RUS +
                                         choice_order = ~ concept)
 saveRDS(fit_FH_3, "fit_FH_3F.rds")
 fit_FH_3 <- readRDS("fit_FH_3F.rds")
+AIC(fit_FH_3)
+BIC(fit_FH_3)
+fit_FH_3$information_criterion$BIC
+fit_FH_3$information_criterion$N
+
+predict(fit_FH_3)
 
 
 FactorHet::marginal_AME(fit_FH_3) # fast
