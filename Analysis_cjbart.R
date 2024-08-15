@@ -39,22 +39,30 @@ fit_cjbart <- readRDS("fit_cjbart.rds")
 
 
 # Get IMCEs
-imces <- IMCE(data = cj_tidy, 
+t1 <- Sys.time()
+imces <- IMCE(data = cj_tidy,
+              keep_omce = TRUE,
               model = fit_cjbart, 
-              attribs = c('Territ_Cession'), 
-              ref_levels = c('None')
+              attribs = c('Territ_Cession','Polit_Self_Det_UKR'), 
+              ref_levels = c('None','Full')
               # ,method = 'parametric'
-              , cores = 3
+              , cores = 2
 )
+t2 <- Sys.time()
+
+saveRDS(imces, "imces.rds")
 
 # Get VarImps
-het_vimp(imces, 
-         levels = NULL, 
-         covars = c("country", 
-                    "age", 
-                    "gender", 
-                    "leftright3"), 
-         cores = 3)
+var_imps <- het_vimp(imces = imces, 
+                     covars = c("Country", 
+                                "age", 
+                                "gender", 
+                                "leftright3"), 
+                     cores = 2)
+  
+         
+
+saveRDS(var_imps, "var_imps.rds")
 
 
 
