@@ -102,9 +102,10 @@ test +
 
 # Fit single 
 library(rpart)
-library(rpart.plot)
+library(rpart.plot) # standard built-in plot
 
 
+# Single IMCE Prediction Decision Trees
 # Num Soldiers Killed Russia
 fit <- rpart::rpart(formula = `100,000` ~ Country + age + gender + leftright3,
                     imces$imce)
@@ -142,50 +143,11 @@ rpart.plot(fit)
 
 
 
-#### Steal plot
+#### Custom plot
 x <- var_imps
 
 
-
-
-# Reorder Factor levels 
-
-unique(plot_data$Attribute)
-
-
-desired_order_1 <- c("8,000", "16,000")
-desired_order_2 <- c("100B", "200B")
-desired_order_3 <- c("0.2% of GDP.","0.3% of GDP")
-desired_order_4 <- c("0.2% of GDP","0.3% of GDP")
-desired_order_5 <- c("NO EU/Nato", "Russian influence")
-desired_order_6 <- c("Low (5%)", "Moderate (10%)")
-desired_order_7 <- c("50,000.", "100,000")
-desired_order_8 <- c("12,500.", "25,000")
-desired_order_9 <- c("Crimea (4%)", "2014 LoC (8%)", "2023 LoC (16%)")
-
-# Reorder the factor levels in your dataset
-plot_data$Civ_killed_UKR <- factor(plot_data$Civ_killed_UKR, 
-                                   levels = desired_order_1)
-plot_data$Infra_Destr_UKR <- factor(plot_data$Infra_Destr_UKR, 
-                                   levels = desired_order_2)
-plot_data$Perc_GDP_econ <- factor(plot_data$Perc_GDP_econ, 
-                                   levels = desired_order_3)
-plot_data$Perc_GDP_milit <- factor(plot_data$Perc_GDP_milit, 
-                                   levels = desired_order_4)
-plot_data$Polit_Self_Det_UKR <- factor(plot_data$Polit_Self_Det_UKR, 
-                                   levels = desired_order_5)
-plot_data$Risk_Nuke <- factor(plot_data$Risk_Nuke, 
-                                   levels = desired_order_6)
-plot_data$Sold_killed_RUS <- factor(plot_data$Sold_killed_RUS, 
-                                   levels = desired_order_7)
-plot_data$Sold_killed_UKR <- factor(plot_data$Sold_killed_UKR, 
-                                   levels = desired_order_8)
-plot_data$Territ_Cession <- factor(plot_data$Territ_Cession, 
-                                   levels = desired_order_9)
-
-
-
-
+# Generate Custom Plot Attribute Labels with Line Breaks
 custom_labels <- c("Sold_killed_UKR" = "Sold\nkilled\nUKR", 
                    "Sold_killed_RUS" = "Sold\nkilled\nRUS",
                    "Civ_killed_UKR" = "Civ\nkilled\nUKR", 
@@ -197,10 +159,12 @@ custom_labels <- c("Sold_killed_UKR" = "Sold\nkilled\nUKR",
                    "Polit_Self_Det_UKR" = "Polit\nSD\nUKR")
 
 
+# Rename Covariates with proper Caps 
 plot_data[which(plot_data$covar == 'age'), 'covar'] <- "Age"
 plot_data[which(plot_data$covar == 'gender'), 'covar'] <- "Gender"
 plot_data[which(plot_data$covar == 'leftright3'), 'covar'] <- "Left-Right-3"
 
+# Plot the Var Imps
 ggplot2::ggplot(plot_data,
                 ggplot2::aes_string(x = "covar",
                                     y = "Level",
@@ -225,3 +189,42 @@ ggplot2::ggplot(plot_data,
                                            # , face = "bold", # Change the color and style of the text) +
                                            ),
                  panel.background = ggplot2::element_rect(fill = "white")) 
+
+
+
+
+
+
+# Reorder Factor levels  tbd 
+unique(plot_data$Attribute)
+
+desired_order_1 <- c("8,000", "16,000")
+desired_order_2 <- c("100B", "200B")
+desired_order_3 <- c("0.2% of GDP.","0.3% of GDP")
+desired_order_4 <- c("0.2% of GDP","0.3% of GDP")
+desired_order_5 <- c("NO EU/Nato", "Russian influence")
+desired_order_6 <- c("Low (5%)", "Moderate (10%)")
+desired_order_7 <- c("50,000.", "100,000")
+desired_order_8 <- c("12,500.", "25,000")
+desired_order_9 <- c("Crimea (4%)", "2014 LoC (8%)", "2023 LoC (16%)")
+
+# Reorder the factor levels in your dataset
+plot_data$Civ_killed_UKR <- factor(plot_data$Civ_killed_UKR, 
+                                   levels = desired_order_1)
+plot_data$Infra_Destr_UKR <- factor(plot_data$Infra_Destr_UKR, 
+                                    levels = desired_order_2)
+plot_data$Perc_GDP_econ <- factor(plot_data$Perc_GDP_econ, 
+                                  levels = desired_order_3)
+plot_data$Perc_GDP_milit <- factor(plot_data$Perc_GDP_milit, 
+                                   levels = desired_order_4)
+plot_data$Polit_Self_Det_UKR <- factor(plot_data$Polit_Self_Det_UKR, 
+                                       levels = desired_order_5)
+plot_data$Risk_Nuke <- factor(plot_data$Risk_Nuke, 
+                              levels = desired_order_6)
+plot_data$Sold_killed_RUS <- factor(plot_data$Sold_killed_RUS, 
+                                    levels = desired_order_7)
+plot_data$Sold_killed_UKR <- factor(plot_data$Sold_killed_UKR, 
+                                    levels = desired_order_8)
+plot_data$Territ_Cession <- factor(plot_data$Territ_Cession, 
+                                   levels = desired_order_9)
+
