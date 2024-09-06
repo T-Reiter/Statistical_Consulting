@@ -16,3 +16,8 @@ var_imps.rds
 var_imps_all_attributes_new.rds
 Rplot.png
 Ukraine Conjoint Data/
+
+# new with add covars
+fit_cjbart_add_covars.rds
+imces_all_new_add_covars.rds
+var_imps_all_attributes_new_add_covars.rds
