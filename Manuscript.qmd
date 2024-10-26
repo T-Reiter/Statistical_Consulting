@@ -7,7 +7,9 @@ author:
     email: p.sterner@psy.lmu.de
 format: pdf
 floatsintext: yes
-editor: visual
+editor_options: 
+  markdown: 
+    wrap: sentence
 ---
 
 # Introduction
@@ -35,7 +37,6 @@ This leads to a second issue: conjoint data can quickly become high-dimensional 
 Consequently, there are more combinations of attribute levels (and thus, possible options) that should be presented to participants than there are actual rounds of choosing per participant.
 This leads to some kind of "double high-dimensionality issue": there are many different attribute (level) combinations *and* many potential covariates characterizing the participants.
 This results in a number of possible interactions that are untractable for classical methods (these interactions correspond to the effect heterogeneity mentioned above).
-
 
 # New Approaches to Handle Effect Heterogeneity under High-Dimensionality
 
@@ -67,7 +68,7 @@ CITE propose a three-step estimation procedure.
 
 In a first step, potential effect heterogeneity is modeled.
 Specifically, some function is estimated that relates the attribute levels of the *L* attributes that were shown to subject *i* in the $k^{th}$ round in profile *j* and the covariate vector $X_i$ to the observed binary outcome $Y_{ijk}$ (which is equal to 1 if the profile was chosen and equal to 0 if it was not chosen).
-CITE detail this estimation procedure using Bayesian additive regression trees (BART) but other appropriate models that can estimate this potentially complex functionial relationship could be used as well.
+CITE detail this estimation procedure using Bayesian additive regression trees (BART) but other appropriate models that can estimate this potentially complex functional relationship could be used as well.
 BART is...
 
 EXPLAIN THREE STEP PROCEDURE OF ESTIMATING OMCES AND THEN IMCES WITH BART.
@@ -76,35 +77,22 @@ EXPLAIN HOW RFs ARE USED TO ESTIMATE VIMP
 
 EXPLAIN HOW DTs ARE USED TO INVESTIGATE HETEROGENEITY IN IMCEs AND WHICH COVARIATES ARE DRIVERS
 
--Vorgeschlagene neue Modelle in der Literatur 
--cjBart
--Idee des Modells/der Modelle 
--weitere Modelle:
-	-factorHet + idee kurz
-	-CRT + idee kurz
-Warum cjBart → das Modell stark machen 
+-Vorgeschlagene neue Modelle in der Literatur -cjBart -Idee des Modells/der Modelle -weitere Modelle: -factorHet + idee kurz -CRT + idee kurz Warum cjBart → das Modell stark machen
 
 # Data, Research Question, and Method
--Die Daten 
--Fragestellung 
--bisherige Forschung
+
+-Die Daten -Fragestellung -bisherige Forschung
 
 # Results
--Ergebnisse 
-cjBart Ergebnisse 
+
+-Ergebnisse cjBart Ergebnisse
 
 # Integration of Results
--Einordnung der Ergebnisse
--Vergleich mit factorHet
--Vergleich mit “normaler” Subgruppen Analyse
+
+-Einordnung der Ergebnisse -Vergleich mit factorHet -Vergleich mit “normaler” Subgruppen Analyse
 
 # Discussion
-Discussion & Limitations
--Tuning 
--Wie viele Covariates (inference vs. exploration)
--Stabilität
 
-# Conclusion 
+Discussion & Limitations -Tuning -Wie viele Covariates (inference vs. exploration) -Stabilität
 
-
-
+# Conclusion
