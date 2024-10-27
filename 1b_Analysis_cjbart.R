@@ -9,7 +9,7 @@ library(cjbart)
 # setwd(dirname(rstudioapi::getSourceEditorContext()$path))
 
 ### Load Data 
-cj_tidy <- readRDS("Ukraine Conjoint Data/cj_tidy.rds")
+cj_tidy <- readRDS("0_Ukraine_Conjoint_Data/cj_tidy.rds")
 
 # get additional covariate data 
 add_covars <- 
