@@ -13,11 +13,11 @@ cj_tidy <- readRDS("0_Ukraine_Conjoint_Data/cj_tidy.rds")
 
 # get additional covariate data 
 add_covars <- 
-  readRDS("Ukraine Conjoint Data/CJ_Ukraine_NewCovariates.Rds")
+  readRDS("0_Ukraine_Conjoint_Data/CJ_Ukraine_NewCovariates.Rds")
 # get additional covariate data --> same data different files types?
 library(haven)
 add_covars2 <- 
-  haven::read_dta("Ukraine Conjoint Data/CJ_Ukraine_NewCovariates.dta")
+  haven::read_dta("0_Ukraine_Conjoint_Data/CJ_Ukraine_NewCovariates.dta")
 rm(add_covars2)
 
 
@@ -73,12 +73,11 @@ fit_cjbart <- cjbart(data = cj_tidy,
                      cores = 4)
 
 
-saveRDS(fit_cjbart, "fit_cjbart_add_covars.rds")
-fit_cjbart <- readRDS("fit_cjbart_add_covars.rds")
+# saveRDS(fit_cjbart, "1c_Model_Objects/fit_cjbart_add_covars.rds")
+fit_cjbart <- readRDS("1c_Model_Objects/fit_cjbart_add_covars.rds")
 
 
 # Get IMCEs
-t1 <- Sys.time()
 imces <- IMCE(data = cj_tidy,
               keep_omce = TRUE,
               model = fit_cjbart, 
@@ -92,7 +91,7 @@ imces <- IMCE(data = cj_tidy,
                           , "Territ_Cession"
                           , "Polit_Self_Det_UKR"
                           ), 
-              ref_levels = c('25,000'
+              ref_levels = c('12,500'
                              , '25,000.'
                              , '4,000'
                              , '50B'
@@ -105,10 +104,10 @@ imces <- IMCE(data = cj_tidy,
               # ,method = 'parametric'
               , cores = 4
 )
-t2 <- Sys.time()
 
-saveRDS(imces, "imces_all_new_add_covars.rds")
-# imces <- readRDS("imces_all_new_add_covars.rds")
+saveRDS(imces, "1c_Model_Objects/2024-10-27_imces_all_new_add_covars.rds")
+imces_4 <- readRDS("1c_Model_Objects/imces_all_new.rds")
+imces <- readRDS("1c_Model_Objects/2024-10-27_imces_all_new_add_covars.rds")
 
 
 # Get VarImps
@@ -121,16 +120,114 @@ covars_of_interest <- c("Country", "age", "gender", "leftright3",
 
 var_imps <- het_vimp(imces = imces, 
                      covars = covars_of_interest, 
-                     cores = 4)
+                     cores = 3)
 
          
-saveRDS(var_imps, "var_imps_all_attributes_new_add_covars.rds")
-# var_imps <- readRDS("var_imps_all_attributes_new_add_covars.rds")
+# saveRDS(var_imps, "1c_Model_Objects/2024-10-27_var_imps_all_attributes_new_add_covars.rds")
+var_imps_4 <- readRDS("1c_Model_Objects/var_imps_all_attributes_new.rds")
+var_imps <- readRDS("1c_Model_Objects/2024-10-27_var_imps_all_attributes_new_add_covars.rds")
 
-# Get Plot of VarImps (as in Paper)
-test <- plot(var_imps)
+### Get Plot of VarImps (as in Paper)
+# plot(var_imps) # off the shelf-version in package 
 
-# Change order of the factors --> ToDo
+# Custom Plot
+#### Custom plot
+plot_data <- var_imps$results
+
+
+# Generate Custom Plot Attribute Labels with Line Breaks
+custom_labels <- c("Sold_killed_UKR" = "Sold\nkilled\nUKR", 
+                   "Sold_killed_RUS" = "Sold\nkilled\nRUS",
+                   "Civ_killed_UKR" = "Civ\nkilled\nUKR", 
+                   "Infra_Destr_UKR" = "Infra\nDestr\nUKR", 
+                   "Perc_GDP_milit" = "Perc\nGDP\nmilit", 
+                   "Perc_GDP_econ" = "Perc\nGDP\necon", 
+                   "Risk_Nuke" = "Risk\nNuke", 
+                   "Territ_Cession" = "Territ\nCession", 
+                   "Polit_Self_Det_UKR" = "Polit\nSD\nUKR")
+
+
+# Rename Covariates with proper Caps 
+plot_data[which(plot_data$covar == 'age'), 'covar'] <- "Age"
+plot_data[which(plot_data$covar == 'gender'), 'covar'] <- "Gender"
+plot_data[which(plot_data$covar == 'leftright3'), 'covar'] <- "Left-Right-3"
+
+desired_orders_df <- data.frame(
+  Attribute = c(rep("Civ_killed_UKR", 2),
+                rep("Infra_Destr_UKR", 2),
+                rep("Perc_GDP_econ", 2),
+                rep("Perc_GDP_milit", 2),
+                rep("Polit_Self_Det_UKR", 2),
+                rep("Risk_Nuke", 2),
+                rep("Sold_killed_RUS", 2),
+                rep("Sold_killed_UKR", 2),
+                rep("Territ_Cession", 3)),
+  Level = c("16,000", "8,000",
+            "200B", "100B",
+            "0.3% of GDP", "0.2% of GDP.",
+            "0.3% of GDP", "0.2% of GDP",
+            "Russian influence", "NO EU/Nato",
+            "Moderate (10%)", "Low (5%)",
+            "100,000", "50,000.",
+            "25,000", "12,500.",
+            "2023 LoC (16%)", "2014 LoC (8%)", "Crimea (4%)"),
+  order = c(1,2,
+            1,2,
+            1,2,
+            1,2,
+            1,2,
+            1,2,
+            1,2,
+            1,2,
+            1,2,3)
+)
+
+plot_data <- merge(plot_data, desired_orders_df, by = c("Attribute", "Level"), all.x = TRUE)
+library(tidytext)
+library(dplyr)
+plot_data <- plot_data %>%
+  mutate(Level_ordered = reorder_within(Level, -order, Attribute))
+
+
+library(ggplot2)
+ggplot(plot_data,
+       aes(x = covar,
+           y = Level_ordered,
+           fill = importance)) +
+  facet_grid(Attribute ~ ., 
+             space = "free", 
+             scales = "free",
+             switch = "y",
+             labeller = labeller(Attribute = custom_labels)) +
+  geom_tile() +
+  scale_y_reordered() +
+  scale_fill_gradient(low="white", high="firebrick1") +
+  labs(x = "Covariates", 
+       y = "Attribute-level", 
+       fill = "Importance") +
+  theme(axis.text.x = element_text(angle=45, 
+                                   vjust = 1, 
+                                   hjust = 1),
+        strip.placement = "outside",
+        strip.background = element_rect(fill = "grey80", 
+                                        color = "grey50"),
+        strip.text = element_text(color = "black"),
+        panel.background = element_rect(fill = "white"))
+
+
+ggsave('1d_Plots/RF_VarImps_full')
+
+
+# Q15:
+# Wenn dadurch ein Friedensabkommen mit Russland möglich wäre: 
+# Sollte die Ukraine eine oder mehrere der 
+# unten genannten Zugeständnisse machen?“ 
+# Q15_1
+# "Auf eine NATO-Mitgliedschaft verzichten“  (binary choice)
+
+# Q15_7:
+# Q15_7: "Gar keine Zugeständnisse machen“  (binary choice)
+
 
   
 # Fit single trees 
@@ -139,14 +236,34 @@ library(rpart.plot) # standard built-in plot
 
 
 # Single IMCE Prediction Decision Trees
-# Num Soldiers Killed Russia
+# Num Soldiers Killed Russia (4 Subject Level Covars)
 fit <- rpart::rpart(formula = `100,000` ~ Country + age + gender + leftright3,
+                    imces_4$imce)
+rpart.plot(fit)
+
+fit <- rpart::rpart(formula = `50,000.` ~ Country + age + gender + leftright3,
+                    imces_4$imce)
+rpart.plot(fit)
+
+# Num Soldiers Killed Russia (Enlarged Covariate Set)
+fit <- rpart::rpart(formula = `100,000` ~ 
+                      Country + age + gender + leftright3 + 
+                      QV_Ukraine + q3_3 + Q5 + q1617_USA + 
+                      q1617_RUS + Q11 + Q15_1 + Q15_7 + 
+                      q10_2 + q10_6 + q10_8 + q10_10,
+                    imces$imce)
+rpart.plot(fit)
+# Q15_1 == 1 --> Exit Nato, if consequence would be more Russian Soldiers killed
+# Most people would say, that if 
+
+fit <- rpart::rpart(formula = `50,000.` ~ 
+                      Country + age + gender + leftright3 + 
+                      QV_Ukraine + q3_3 + Q5 + q1617_USA + 
+                      q1617_RUS + Q11 + Q15_1 + Q15_7 + 
+                      q10_2 + q10_6 + q10_8 + q10_10,
                     imces$imce)
 rpart.plot(fit)
 
-fit <- rpart::rpart(formula = `50,000` ~ Country + age + gender + leftright3,
-                    imces$imce)
-rpart.plot(fit)
 
 
 # Political Self-Determination
@@ -169,95 +286,4 @@ rpart.plot(fit_4)
 fit <- rpart::rpart(formula = None ~ Country + age + gender + leftright3,
                     imces$imce)
 rpart.plot(fit)
-
-
-
-
-
-
-
-#### Custom plot
-plot_data <- x$results
-
-
-# Generate Custom Plot Attribute Labels with Line Breaks
-custom_labels <- c("Sold_killed_UKR" = "Sold\nkilled\nUKR", 
-                   "Sold_killed_RUS" = "Sold\nkilled\nRUS",
-                   "Civ_killed_UKR" = "Civ\nkilled\nUKR", 
-                   "Infra_Destr_UKR" = "Infra\nDestr\nUKR", 
-                   "Perc_GDP_milit" = "Perc\nGDP\nmilit", 
-                   "Perc_GDP_econ" = "Perc\nGDP\necon", 
-                   "Risk_Nuke" = "Risk\nNuke", 
-                   "Territ_Cession" = "Territ\nCession", 
-                   "Polit_Self_Det_UKR" = "Polit\nSD\nUKR")
-
-
-# Rename Covariates with proper Caps 
-plot_data[which(plot_data$covar == 'age'), 'covar'] <- "Age"
-plot_data[which(plot_data$covar == 'gender'), 'covar'] <- "Gender"
-plot_data[which(plot_data$covar == 'leftright3'), 'covar'] <- "Left-Right-3"
-
-# Plot the Var Imps
-ggplot2::ggplot(plot_data,
-                ggplot2::aes_string(x = "covar",
-                                    y = "Level",
-                                    fill = "importance")) +
-  ggplot2::facet_grid(Attribute ~ ., 
-                      space = "free", 
-                      scales = "free",
-                      switch = "y",
-                      labeller = ggplot2::labeller(Attribute = custom_labels)) +
-  ggplot2::geom_tile() +
-  ggplot2::scale_fill_gradient(low="white", high="firebrick1") +
-  ggplot2::labs(x = "Covariates", 
-                y = "Attribute-level", 
-                fill = "Importance") +
-  ggplot2::theme(axis.text.x = ggplot2::element_text(angle=45, 
-                                                     vjust = 1, 
-                                                     hjust = 1),
-                 strip.placement = "outside",
-                 strip.background = element_rect(fill = "grey80", 
-                                                 color = "grey50"),  # Change the color of the strip background
-                 strip.text = element_text(color = "black"
-                                           # , face = "bold", # Change the color and style of the text) +
-                                           ),
-                 panel.background = ggplot2::element_rect(fill = "white")) 
-
-ggsave("var_imps_add_covars.png")
-
-
-
-
-# Reorder Factor levels  tbd 
-unique(plot_data$Attribute)
-
-desired_order_1 <- c("8,000", "16,000")
-desired_order_2 <- c("100B", "200B")
-desired_order_3 <- c("0.2% of GDP.","0.3% of GDP")
-desired_order_4 <- c("0.2% of GDP","0.3% of GDP")
-desired_order_5 <- c("NO EU/Nato", "Russian influence")
-desired_order_6 <- c("Low (5%)", "Moderate (10%)")
-desired_order_7 <- c("50,000.", "100,000")
-desired_order_8 <- c("12,500.", "25,000")
-desired_order_9 <- c("Crimea (4%)", "2014 LoC (8%)", "2023 LoC (16%)")
-
-# Reorder the factor levels in your dataset
-plot_data$Civ_killed_UKR <- factor(plot_data$Civ_killed_UKR, 
-                                   levels = desired_order_1)
-plot_data$Infra_Destr_UKR <- factor(plot_data$Infra_Destr_UKR, 
-                                    levels = desired_order_2)
-plot_data$Perc_GDP_econ <- factor(plot_data$Perc_GDP_econ, 
-                                  levels = desired_order_3)
-plot_data$Perc_GDP_milit <- factor(plot_data$Perc_GDP_milit, 
-                                   levels = desired_order_4)
-plot_data$Polit_Self_Det_UKR <- factor(plot_data$Polit_Self_Det_UKR, 
-                                       levels = desired_order_5)
-plot_data$Risk_Nuke <- factor(plot_data$Risk_Nuke, 
-                              levels = desired_order_6)
-plot_data$Sold_killed_RUS <- factor(plot_data$Sold_killed_RUS, 
-                                    levels = desired_order_7)
-plot_data$Sold_killed_UKR <- factor(plot_data$Sold_killed_UKR, 
-                                    levels = desired_order_8)
-plot_data$Territ_Cession <- factor(plot_data$Territ_Cession, 
-                                   levels = desired_order_9)
 
