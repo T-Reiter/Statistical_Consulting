@@ -45,6 +45,8 @@ Most notable in this regard are (a) an approach based on *Bayesian additive regr
 In this article, we focus on the explanation and demonstration of cjbart.
 At the end of this section, we briefly delineate similarities and differences in these three approaches.
 
+## cjbart
+
 The premise of cjbart as introduced by CITE is that there are several *nested causal quantities* underlying the AMCE.
 Specifically, the AMCE can be decomposed into an individual-level (i.e., participant-level), round-level, and observation-level marginal component effect (IMCE, RMCE, and OMCE, respectively).
 Let us consider *N* individuals choosing between *J* profiles across *K* rounds (where in the simplest case of binary choices $J = 2$).
@@ -64,12 +66,36 @@ In the following, we explain how the IMCEs are estimated.
 IMCEs can be considered the most important quantity for our purpose of investigating effect heterogeneity because it allows us to analyze how attribute importances differ depending on participant covariates.
 CITE propose a three-step estimation procedure.
 
-## Step 1: Modeling Potential Heterogeneity
+### Step 1: Modeling Potential Heterogeneity
 
 In a first step, potential effect heterogeneity is modeled.
 Specifically, some function is estimated that relates the attribute levels of the *L* attributes that were shown to subject *i* in the $k^{th}$ round in profile *j* and the covariate vector $X_i$ to the observed binary outcome $Y_{ijk}$ (which is equal to 1 if the profile was chosen and equal to 0 if it was not chosen).
 CITE detail this estimation procedure using Bayesian additive regression trees (BART) but other appropriate models that can estimate this potentially complex functional relationship could be used as well.
-BART is...
+BART is a supervised learning model based on a boosting procedure: many small decision trees are trained subsequently, each one aiming to explain the residual variance of the outcome variable which was not explained by all previous trees.
+The "Bayesian part" in BART is that parameters are seen as random variables (instead of constants, as would be the case in frequentist approaches).
+An advantage of BART is its robustness to the choice of hyperparameters (e.g., the number of individual trees) but they could be tuned if necessary, for example by cross-validation.
+The data that is used to train the BART are the data resulting from the conjoint experiment; that is, the different choices of profiles as well as the covariates, which are invariant at the individual-level.
+
+### Step 2: Predicting Counterfactual Outcomes
+
+In a second step, the estimated function from step 1 (i.e., the trained BART model) is used to predict counterfactual outcomes by changing the values of attribute levels.
+These predictions are counterfactual because they did not happen --- but we assess what would have been chosen had a certain attribute level been set to a different attribute level of the same attribute.
+This is done repeatedly by drawing multiple times from a predicted posterior distribution, once with the altered attribute level and once with the reference level of the same attribute.
+By subtracting these results and averaging them over the multiple draws of the posterior, we arrive at a parameter estimate of the OMCE (i.e., observation-level effects).
+
+### Step 3: Calculating IMCEs
+
+Following the nested causal quantities structure outlines above, IMCEs are calculated by averaging the OMCEs for each individual.
+Specifically, the OMCE estimates from step 2 are summed and divided by $J \times K$, that is, the number of profiles times the number of rounds (which is the number of total observations).
+
+
+## Identification of Heterogeneity
+
+As mentioned, the main reason why we employ these complicated procedures is because we want to estimate heterogeneous treatment effect.
+More specifically, we want to assess whether the effects of certain attribute levels of choice behavior are different across individuals.
+CITE provide two methods that yield information about which covariates are associated with heterogeneity in effects of attribute levels.
+
+
 
 EXPLAIN THREE STEP PROCEDURE OF ESTIMATING OMCES AND THEN IMCES WITH BART.
 
@@ -77,7 +103,14 @@ EXPLAIN HOW RFs ARE USED TO ESTIMATE VIMP
 
 EXPLAIN HOW DTs ARE USED TO INVESTIGATE HETEROGENEITY IN IMCEs AND WHICH COVARIATES ARE DRIVERS
 
--Vorgeschlagene neue Modelle in der Literatur -cjBart -Idee des Modells/der Modelle -weitere Modelle: -factorHet + idee kurz -CRT + idee kurz Warum cjBart → das Modell stark machen
+-Vorgeschlagene neue Modelle in der Literatur 
+-cjBart 
+-Idee des Modells/der Modelle 
+-weitere Modelle: 
+-factorHet + idee kurz 
+-CRT + idee kurz 
+Warum cjBart  
+das Modell stark machen
 
 # Data, Research Question, and Method
 
