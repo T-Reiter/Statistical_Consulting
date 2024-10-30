@@ -38,12 +38,14 @@ Consequently, there are more combinations of attribute levels (and thus, possibl
 This leads to some kind of "double high-dimensionality issue": there are many different attribute (level) combinations *and* many potential covariates characterizing the participants.
 This results in a number of possible interactions that are untractable for classical methods (these interactions correspond to the effect heterogeneity mentioned above).
 
+
 # New Approaches to Handle Effect Heterogeneity under High-Dimensionality
 
 To remedy the downsides of the "naive" subgroup approach outline above, researchers developed more advanced methods based on machine learning.
 Most notable in this regard are (a) an approach based on *Bayesian additive regression trees* (in the following called *cjbart* CITE), (b) an approach based on Bayesian mixture of regularized logistic regressions (*FactorHet* CITE), and (c) a testing approach based on conditional randomization tests (*CRT* CITE).
 In this article, we focus on the explanation and demonstration of cjbart.
 At the end of this section, we briefly delineate similarities and differences in these three approaches.
+
 
 ## cjbart
 
@@ -94,18 +96,24 @@ Specifically, the OMCE estimates from step 2 are summed and divided by $J \times
 As mentioned, the main reason why we employ these complicated procedures is because we want to estimate heterogeneous treatment effect.
 More specifically, we want to assess whether the effects of certain attribute levels of choice behavior are different across individuals.
 CITE provide two methods that yield information about which covariates are associated with heterogeneity in effects of attribute levels.
+Both methods are tree-based which is especially suitable to investigate heterogeneity because trees partition a data set into increasingly homogeneous groups.
+Thereby, they can reveal covariates that drive the heterogeneity as these covariates will be used for splitting the data.
+
+### Tool 1: Random Forest Variable Importance
+
+The first tool uses random forests, an ensemble of decision trees, to investigate which covariates are the important ones in the prediction of differences in the IMCE distributions for all attribute-levels (i.e., the effect heterogeneity).
+Specifically, for each attribute level, a random forest is trained where the covariates $X_i$ are used as predictors.
+Subsequently, variable importance measures (VIMPs) are derived to assess which covariates are driving the data partitioning. Briefly, the VIMPs are calculated by permuting the covariates (i.e., by introducing random noise to its values).
+If predictions change noticeably, this is an indication that the covariate is important for predicting the outcome (i.e., IMCE distributions).
+Of note, this is done separately for every combination of covariate and attribute level because the importance of a certain covariate may differ with respect to different attribute levels.
+This results in a comprehensive VIMP-heatmap, which we show in the results section.
+
+### Tool 2: 
 
 
 
-EXPLAIN THREE STEP PROCEDURE OF ESTIMATING OMCES AND THEN IMCES WITH BART.
 
-EXPLAIN HOW RFs ARE USED TO ESTIMATE VIMP
 
-EXPLAIN HOW DTs ARE USED TO INVESTIGATE HETEROGENEITY IN IMCEs AND WHICH COVARIATES ARE DRIVERS
-
--Vorgeschlagene neue Modelle in der Literatur 
--cjBart 
--Idee des Modells/der Modelle 
 -weitere Modelle: 
 -factorHet + idee kurz 
 -CRT + idee kurz 
