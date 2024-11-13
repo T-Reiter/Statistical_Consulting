@@ -19,7 +19,7 @@ Under the popular special case of *forced choice designs*, participants are pres
 The two possible options are characterized by certain *attributes* (also: treatments), which can have different *attribute levels* (treatment levels), for example the attribute color of a car might have levels white, black, and blue.
 By randomly mixing the attribute levels and "forcing" participants to choose one of two options across multiple rounds, researchers are able to estimate the relative importance that participants give to certain attribute levels.
 
-Arguably the most often estimated causal quantity in conjoint analyses is the *average marginal component effect* (AMCE).
+Arguably the most commonly estimated causal quantity in conjoint analyses is the *average marginal component effect* (AMCE).
 The AMCE is the effect of a specific attribute level of interest compared to another level of the same attribute, holding equal the joint distribution of all other attributes and averaged over this joint distribution as well as the sampling distribution from the population CITE.
 This quantity is estimable by regression models and provides us an effect of an attribute on the probability that a certain option (or profile) will be chosen.
 As the name AMCE suggestes, this estimate is an average.
@@ -101,28 +101,46 @@ Thereby, they can reveal covariates that drive the heterogeneity as these covari
 
 ### Tool 1: Random Forest Variable Importance
 
-The first tool uses random forests, an ensemble of decision trees, to investigate which covariates are the important ones in the prediction of differences in the IMCE distributions for all attribute-levels (i.e., the effect heterogeneity).
+The first tool uses random forests, an ensemble of decision trees, to investigate which covariates are the important ones in the prediction of differences in the IMCE distributions for all attribute levels (i.e., the effect heterogeneity).
 Specifically, for each attribute level, a random forest is trained where the covariates $X_i$ are used as predictors.
 Subsequently, variable importance measures (VIMPs) are derived to assess which covariates are driving the data partitioning. Briefly, the VIMPs are calculated by permuting the covariates (i.e., by introducing random noise to its values).
 If predictions change noticeably, this is an indication that the covariate is important for predicting the outcome (i.e., IMCE distributions).
 Of note, this is done separately for every combination of covariate and attribute level because the importance of a certain covariate may differ with respect to different attribute levels.
-This results in a comprehensive VIMP-heatmap, which we show in the results section.
+This results in a comprehensive VIMP-heatmap, which we show as an example in the results section.
 
 ### Tool 2: 
 
+By combining many weak decision trees, random forest have the advantage of increased predictive performance.
+However, this advantage comes at the cost of interpretability.
+Each tree only considers a random subset of predictor variables (in our case: subject-level covariates) and is trained on a bootstrap sample.
+Thus, CITE suggest a complementary analysis with single decision trees which are grown for a specific attribute level.
+In this analysis, a decision tree predicts IMCEs for this specific attribute level, again using subject-level covariates as predictors.
+The partitions within the tree can be readily investigated and interpreted as heterogeneity in IMCEs because only one model is fit to the data set and all predictor variables are considered for splitting.
+Importantly, to keep decision trees interpretable (i.e., to not let them grow too deep), they have to be pruned by setting a complexity parameter controlling the depth.
+CITE suggest to set this parameter such that the tree only continues to split the data if the increase in explained variance of the IMCE (i.e., $R^2$) is at least 0.02 to 0.04.
+The predictions in the terminal nodes of the tree correspond to conditional AMCEs, which would normally be assessed by estimating AMCEs in subgroups.
+However, by using decision trees, which are an exploratory tool by design, no subgroups have to be specified in advance.
+Even further, trees might even identify interaction effects between multiple covariates, for example by splitting twice on two different variables (e.g., Germans older than 30 years).
 
 
+# Data and Research Question
+
+In the following, we showcase the application of cjbart to data provided by Prof. Dr. Paul Thurner and Fabian Haggerty from the Geschwister-Scholl-Institute of Political Science, LMU Munich.
+The data were first described in CITE.
+In their work, CITE aimed at investigating which attributes citizens from five different NATO-member countries (United States [US], United Kingdom [UK], Germany, Italy, and France) deem important when deciding whether Ukraine should be supported economically and militarily against the Russian aggression.
+For this, CITE conducted a conjoint experiment where participants from the five countries chose one of two possible profiles. 
+In these profiles, nine different attributes with varying attribute levels were manipulated randomly to indicate the consequences that a support of Ukraine would entail if the profile was chosen.
+The different attributes and their corresponding levels are shown in TABLE.
+Additionally, subject-level covariates were assessed, for example, participants' age, gender, political orientation, or their country of origin (of the five mentioned above).
+
+To investigate which attributes and attribute levels matter when people decide whether Ukraine should be supported in their defense endeavors, CITE estimated AMCEs as well as marginal means for subgroup analyses.
+THEIR RESULTS.
+
+As described above, this approach comes with the disadvantage that the potentially complex heterogeneity of attribute effects cannot be assessed.
+Additionally, subgroup analyses can only be carried out for a priori defined groups.
 
 
--weitere Modelle: 
--factorHet + idee kurz 
--CRT + idee kurz 
-Warum cjBart  
-das Modell stark machen
-
-# Data, Research Question, and Method
-
--Die Daten -Fragestellung -bisherige Forschung
+# Method
 
 # Results
 
@@ -135,5 +153,11 @@ das Modell stark machen
 # Discussion
 
 Discussion & Limitations -Tuning -Wie viele Covariates (inference vs. exploration) -Stabilität
+
+-weitere Modelle: 
+-factorHet + idee kurz 
+-CRT + idee kurz 
+Warum cjBart  
+das Modell stark machen
 
 # Conclusion
