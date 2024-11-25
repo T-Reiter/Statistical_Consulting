@@ -69,7 +69,11 @@ fit_FH_3$information_criterion$N
 
 predict(fit_FH_3)
 
+# Load saved factorhet objects
+fit_FH_2 <- readRDS('1c_Model_Objects/00_archive/fit_FH_2F.rds')
+fit_FH_2 <- readRDS('1c_Model_Objects/00_archive/fit_FH_3F.rds')
 
+# Plot Stuff 
 FactorHet::marginal_AME(fit_FH_3) # fast
 FactorHet::posterior_by_moderators(fit_FH_3) # fast
 FactorHet::marginal_AMIE(fit_FH_3) # takes some time

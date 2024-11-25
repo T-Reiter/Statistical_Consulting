@@ -15,20 +15,20 @@ editor_options:
 # Introduction
 
 In the social sciences, conjoint analyses are a powerful research design to assess preferences in humans.
-Under the popular special case of *forced choice designs*, participants are presented with two options of choice form which they have to choose one, for example certain products in marketing research, or two potential candidates in political research on voting behavior.
+Under the popular special case of *forced choice designs*, participants are presented with two options of choice from which they have to choose one, for example certain products in marketing research, or two potential candidates in political research on voting behavior.
 The two possible options are characterized by certain *attributes* (also: treatments), which can have different *attribute levels* (treatment levels), for example the attribute color of a car might have levels white, black, and blue.
 By randomly mixing the attribute levels and "forcing" participants to choose one of two options across multiple rounds, researchers are able to estimate the relative importance that participants give to certain attribute levels.
 
 Arguably the most commonly estimated causal quantity in conjoint analyses is the *average marginal component effect* (AMCE).
 The AMCE is the effect of a specific attribute level of interest compared to another level of the same attribute, holding equal the joint distribution of all other attributes and averaged over this joint distribution as well as the sampling distribution from the population CITE.
 This quantity is estimable by regression models and provides us an effect of an attribute on the probability that a certain option (or profile) will be chosen.
-As the name AMCE suggestes, this estimate is an average.
+As the name AMCE suggests, this estimate is an average.
 That is, potential differences in effects among participants cannot be considered directly.
 However, this *effect heterogeneity* is often of interest, when trying to determine whether an attribute is equally important to all participants regardless of background covariates (e.g., age, gender, education, etc.) or whether there are subgroup differences.
-Ultimately, it is a question of generalisation of results to the entire population and, even more advanced, of causal mechanisms in choice behavior.
+Ultimately, it is a question of generalization of results to the entire population and, even more advanced, of causal mechanisms in choice behavior.
 
 The simplest approach to take into account potential effect heterogeneity in conjoint analyses is to estimate the AMCE-models in different subgroups, for example a model for all male and female participants.
-Altough appealing due to its simplicity, this approach quickly reaches its limits and has additional downsides.
+Although appealing due to its simplicity, this approach quickly reaches its limits and has additional downsides.
 First, it is not clear how to a priori define the subgroups let alone how and where to include certain interactions.
 If a continuous covariate age is included in the data, arbitrary splits into distinct groups are necessary.
 Potential interaction effects would have to be included manually with the likely chance to miss important ones.
@@ -36,12 +36,12 @@ Needless to say, sample sizes in the subgroups are always smaller than in the wh
 This leads to a second issue: conjoint data can quickly become high-dimensional due to many different pairings of different attribute levels (across attributes).
 Consequently, there are more combinations of attribute levels (and thus, possible options) that should be presented to participants than there are actual rounds of choosing per participant.
 This leads to some kind of "double high-dimensionality issue": there are many different attribute (level) combinations *and* many potential covariates characterizing the participants.
-This results in a number of possible interactions that are untractable for classical methods (these interactions correspond to the effect heterogeneity mentioned above).
+This results in a number of possible interactions that are intractable for classical methods (these interactions correspond to the effect heterogeneity mentioned above).
 
 
 # New Approaches to Handle Effect Heterogeneity under High-Dimensionality
 
-To remedy the downsides of the "naive" subgroup approach outline above, researchers developed more advanced methods based on machine learning.
+To remedy the downsides of the "naive" subgroup approach outlined above, researchers developed more advanced methods based on machine learning.
 Most notable in this regard are (a) an approach based on *Bayesian additive regression trees* (in the following called *cjbart* CITE), (b) an approach based on Bayesian mixture of regularized logistic regressions (*FactorHet* CITE), and (c) a testing approach based on conditional randomization tests (*CRT* CITE).
 In this article, we focus on the explanation and demonstration of cjbart.
 At the end of this section, we briefly delineate similarities and differences in these three approaches.
@@ -55,9 +55,9 @@ Let us consider *N* individuals choosing between *J* profiles across *K* rounds 
 In each round, an individual *i* is presented with *J* profiles in which the attribute levels of *L* attributes are assigned randomly.
 In the final data set, there are $N \times J \times K$ rows and $L + X$ columns (with *X* being the covariates characterizing the individuals).
 From these data we now want to estimate the causal parameters of interest, that is, AMCE, IMCE, RMCE, and OMCE.
-Nested in the AMCE described above, the IMCE is the change in probability that subject *i* choses a profile given a specific attribute level (compared to a reference category), again averaged over the effects of all other attributes.
+Nested in the AMCE described above, the IMCE is the change in probability that subject *i* choses a profile given a specific attribute level (compared to a reference level of the same attribute), again averaged over the effects of all other attributes.
 This corresponds to subgroup analyses of the AMCE with the convenient addition that the IMCE considers conditional effects based on all possible individual-level covariates.
-By inspecting the IMCE, effect heterogeneity due to non-randomized characterisitics (i.e., the covariates) can be identified.
+By inspecting the IMCE, effect heterogeneity due to non-randomized characteristics (i.e., the covariates) can be identified.
 The IMCE further contains the two lower-level quantities RMCE and OMCE.
 Because for each participant, there are usually multiple rounds of observations (i.e., choices), the RMCE can be obtained as the effect of an attribute within a specific round *k* of the experiment for a given individual *i*.
 Lastly, the OMCE is estimated by additionally conditioning on a specific profile-level (i.e., if $J = 2$, by conditioning on one of the two profiles).
@@ -93,8 +93,8 @@ Specifically, the OMCE estimates from step 2 are summed and divided by $J \times
 
 ## Identification of Heterogeneity
 
-As mentioned, the main reason why we employ these complicated procedures is because we want to estimate heterogeneous treatment effect.
-More specifically, we want to assess whether the effects of certain attribute levels of choice behavior are different across individuals.
+As mentioned, the main reason why we employ these complicated procedures is because we want to estimate heterogeneous treatment effects.
+More specifically, we want to assess whether the effects of certain attribute levels on choice behavior are different across individuals.
 CITE provide two methods that yield information about which covariates are associated with heterogeneity in effects of attribute levels.
 Both methods are tree-based which is especially suitable to investigate heterogeneity because trees partition a data set into increasingly homogeneous groups.
 Thereby, they can reveal covariates that drive the heterogeneity as these covariates will be used for splitting the data.
@@ -108,7 +108,7 @@ If predictions change noticeably, this is an indication that the covariate is im
 Of note, this is done separately for every combination of covariate and attribute level because the importance of a certain covariate may differ with respect to different attribute levels.
 This results in a comprehensive VIMP-heatmap, which we show as an example in the results section.
 
-### Tool 2: 
+### Tool 2: Single Decision Tree Partitioning
 
 By combining many weak decision trees, random forest have the advantage of increased predictive performance.
 However, this advantage comes at the cost of interpretability.
@@ -139,16 +139,62 @@ THEIR RESULTS.
 As described above, this approach comes with the disadvantage that the potentially complex heterogeneity of attribute effects cannot be assessed.
 Additionally, subgroup analyses can only be carried out for a priori defined groups.
 
+Daten noch etwas besser beschreiben N, Studie etc.
+
 
 # Method
+Data of the above conjoint experiment was fit using the previously described cjbart approach and package.
+First, we fitted a *reduced model* based on a reduced data set (i.e. reduced model) only containing the profile attributes and subject-level covariates age, country, gender, and left-right-3 (i.e., political orientation categorized into the 3 categories left, middle, right). 
+We then fitted a second *extended model* using a more extensive data set (i.e., extended model) with subject-level covariates additionally including subjects' agreement on different more specific statements regarding political or XXX statements (e.g., EXAMPLE). 
+This results in trained BART models that were used to make the (counterfactual) predictions needed for calculating the quantities of interest such as IMCEs or AMCEs.
+
+In the next step, these (counterfactual) predictions were used to calculate OMCEs. These were aggregated to the different individual- and attribute specific IMCEs. We used the reference levels as specified in Table X. 
+
+To better understand the associations of different subject-level covariates and individual effects of specific attributes (i.e., IMCEs) we used the two approaches proposed by CITE. 
+For this, a random forest model was fit on the IMCEs using the respective individuals' subject-level covariates. 
+We then used decision trees to more thoroughly investigate the relationships of specific IMCEs and covariates for which the previous step suggested relevant contribution to the prediction. As already proposed in CITE, we found complexity parameter values (cp) between 0.02 and 0.04 to yield useful results. Usage of larger cp values resulted in overly simplified trees often consisting of only a single root node. Smaller cp values, on the other hand, often resulted in overly deep trees with little differentiation across many terminal nodes providing too specific interpretations. 
+
+
+
 
 # Results
+@fig-varimps-red displays the variable importance measures for the subject-level covariates as extracted from the reduced model. Variable Importances are colorized using heatmap-like colorcoding with stronger red (vs. white) color indicating larger importance measures. 
 
--Ergebnisse cjBart Ergebnisse
+![Red VarImps](figures/RF_VarImps_red.png){#fig-varimps-red}
+
+The random forest variable importances as extracted from the extended model are displayed in @gif-varimps-ext. 
+
+![Ext VarImps](figures/RF_VarImps_ext.png){#fig-varimps-ext}
+
+Figures X-Y depict the more specific decision trees that were fitted to better understand how different subject level covariates contribute to the observed effect heterogeneity. 
+
+
+
+
+
+
+
 
 # Integration of Results
+-Einordnung der Ergebnisse 
+-Country in general important as seen in the reduced model 
+-association with country for almost all IMCEs 
+--> Trees: mostly UK vs Rest (then more specific associations)
+--> Gender relevant for perc. gdp. milit & civ. killed UKR 
+--> Left-Right-Relevant for perc. gdp econ 
 
--Einordnung der Ergebnisse -Vergleich mit factorHet -Vergleich mit “normaler” Subgruppen Analyse
+-When using additional covariates results change quite a bit
+--> country still relevant but rather for the risk nuke and civ killed 
+--> gender also still for civ killed
+--> especially the 3 questions q10_10, q15_7 and q3_3 are also relevant
+--> describe questions and interpret
+
+
+-Vergleich mit factorHet 
+- short description of factor het results 
+
+
+-Vergleich mit “normaler” Subgruppen Analyse
 
 # Discussion
 
