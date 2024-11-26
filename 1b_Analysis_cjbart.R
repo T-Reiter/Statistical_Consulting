@@ -222,7 +222,6 @@ var_imps_ext <- readRDS("1c_Model_Objects/2024-11-18_var_imps_ext.rds")
 # plot(var_imps_ext)
 
 var_imps_ext <- readRDS("1c_Model_Objects/2024-11-18_var_imps_ext.rds")
-var_imps_ext_2 <- readRDS("1c_Model_Objects/2024-11-18_var_imps_ext_2.rds")
 
 #### Custom plot (prettier)
 # plot_data <- var_imps_red$results # reduced covariate set
@@ -243,6 +242,20 @@ custom_labels <- c("Sold_killed_UKR" = "Sold\nkilled\nUKR",
 plot_data[which(plot_data$covar == 'age'), 'covar'] <- "Age"
 plot_data[which(plot_data$covar == 'gender'), 'covar'] <- "Gender"
 plot_data[which(plot_data$covar == 'leftright3'), 'covar'] <- "Left-Right-3"
+
+# Rename Questionnaire Covariates
+plot_data[which(plot_data$covar == 'Q5'), 'covar'] <- "Weapons matter\nfor election 4"  # 
+plot_data[which(plot_data$covar == 'q10_2'), 'covar'] <- "Anti Weapon\ndeliveries 7"# 
+plot_data[which(plot_data$covar == 'q10_6'), 'covar'] <- "General Weapon\nfor defense 7"# 
+plot_data[which(plot_data$covar == 'q10_8'), 'covar'] <- "Weapons if\nciv. casualties  7"#
+plot_data[which(plot_data$covar == 'q10_10'), 'covar'] <- "Weapons if\n infra. destr. 7"
+plot_data[which(plot_data$covar == 'Q11'), 'covar'] <- "Anti Nato 5"  # 
+plot_data[which(plot_data$covar == 'q1617_RUS'), 'covar'] <- "Empathy RUS 7"  # 
+plot_data[which(plot_data$covar == 'q1617_USA'), 'covar'] <- "Anti USA 7"  # 
+plot_data[which(plot_data$covar == 'QV_Ukraine'), 'covar'] <- "Political Agenda:\nWar Ukraine 7"  # 
+plot_data[which(plot_data$covar == 'q3_3'), 'covar'] <- "Scared\nby War 7"
+plot_data[which(plot_data$covar == 'Q15_1'), 'covar'] <- "for Peace 01:\nUKR NATO Waiver"
+plot_data[which(plot_data$covar == 'Q15_7'), 'covar'] <- "for Peace 01:\nNo Concessions"
 
 # Rename additional covars 
 # Q10_10
@@ -305,6 +318,22 @@ desired_orders_df <- data.frame(
             1,2,3)
 )
 
+
+desired_covar_order <- c("Age", "Gender", "Country", "Left-Right-3", 
+                         "Weapons matter\nfor election 4", 
+                         "Anti Weapon\ndeliveries 7",
+                         "General Weapon\nfor defense 7",
+                         "Weapons if\nciv. casualties  7",
+                         "Weapons if\n infra. destr. 7",
+                         "Anti Nato 5",
+                         "Empathy RUS 7",
+                         "Anti USA 7",
+                         "Political Agenda:\nWar Ukraine 7",
+                         "Scared\nby War 7",
+                         "for Peace 01:\nUKR NATO Waiver",
+                         "for Peace 01:\nNo Concessions")
+
+
 plot_data <- merge(plot_data, 
                    desired_orders_df, 
                    by = c("Attribute", "Level"), 
@@ -312,6 +341,8 @@ plot_data <- merge(plot_data,
 
 plot_data <- plot_data %>%
   mutate(Level_ordered = reorder_within(Level, -order, Attribute))
+plot_data <- plot_data %>%
+  mutate(covar = factor(covar, levels = desired_covar_order))
 
 
 # Plot 
@@ -326,6 +357,8 @@ ggplot(plot_data,
              labeller = labeller(Attribute = custom_labels)) +
   geom_tile() +
   scale_y_reordered() +
+  # scale_x_discrete(labels = scales::label_wrap(10)) + 
+  # scale_x_discrete(guide = guide_axis(n.dodge = 5)) +
   scale_fill_gradient(low="white", high="firebrick1") +
   labs(x = "Covariates", 
        y = "Attribute-level", 
@@ -344,7 +377,7 @@ ggplot(plot_data,
 
 
 # ggsave('1d_Plots/RF_VarImps_red.png')
-# ggsave('1d_Plots/RF_VarImps_ext.png')
+# ggsave('Manuscript files/figures/RF_VarImps_ext_v2.png')
 
 
 
@@ -358,11 +391,11 @@ imces_ext <- readRDS("1c_Model_Objects/2024-11-18_imces_ext.rds")
 # custom node function to prefent scientific notation in rpart.plot()
 node_fun <- function(x, labs, digits, varlen) {
   # Calculate the proportion of units in the node
-  total_units <- sum(x$frame$n)  # Total number of units
+  total_units <- fit$frame$n[1]  # Total number of units (= n of root node)
   proportions <- (x$frame$n / total_units) * 100  # Convert to percentage
   
   # Format the node label with value and proportion
-  sprintf("%.4f\n%.1f%%", x$frame$yval, proportions)  # 4 decimals for value, 1 decimal for percentage
+  sprintf("%.4f\n%.0f%%", x$frame$yval, proportions)  # 4 decimals for value, 1 decimal for percentage
 }
 
 # custom function needed for generating plot titles 
@@ -376,152 +409,117 @@ find_attr = function(attribute_level = NULL){
   return(attribute)
 }
 
+# Rename subject-level covars for ease of interpretation
+rename_map <- c(
+  "age" = "Age",
+  "gender" = "Gender", 
+  "Country" = "Country",
+  "leftright3" = "Left-Right-3",
+  "Q5" = "Weapons matter\nfor election 4",
+  "q10_2" = "Anti Weapon\ndeliveries 7",
+  "q10_6" = "General Weapon\nfor defense 7",
+  "q10_8" = "Weapons if\nciv. casualties  7",
+  "q10_10" = "Weapons if\n infra. destr. 7",
+  "Q11" = "Anti Nato 5",
+  "q1617_RUS" = "Empathy RUS 7",
+  "q1617_USA" = "Anti USA 7",
+  "QV_Ukraine" = "Political Agenda:\nWar Ukraine 7",
+  "q3_3" = "Scared\nby War 7",
+  "Q15_1" = "for Peace 01: UKR NATO Waiver",
+  "Q15_7" = "for Peace 01: No Concessions"
+)
 
-### Single IMCE Prediction Decision Trees
+colnames(imces_ext$imce) <- ifelse(
+  colnames(imces_ext$imce) %in% names(rename_map),
+  rename_map[colnames(imces_ext$imce)],
+  colnames(imces_ext$imce)
+)
 
-# Num Soldiers Killed Russia (4 Subject Level Covars)
+
+### Single IMCE Prediction Decision Trees for Associations of Interest
+# IMCE Trees in Paper 
+#' *Civilians_killed_Ukraine (16k vs. 4k)*
+fit <- rpart::rpart(formula = `16,000` ~ Country + Age + Gender + `Left-Right-3` + `for Peace 01: No Concessions`,
+                    imces_ext$imce
+                    , control = rpart.control(cp = 0.02)  # complexity param, default = 0.01, larger --> less complex 
+) 
+printcp(fit) # how many splits with which cp
+png("Manuscript files/figures/DecTree_ext_Civ_killed_Ukr_16k.png", width = 800, height = 600)
+rpart.plot(fit, node.fun = node_fun, cex = 1.2, tweak = 2, 
+           # , main = paste('Target: IMCEs of', find_attr(fit$terms[[2]]), '=',  fit$terms[[2]])
+           )
+dev.off()
+
+
+#' *Russian Soldiers Killed (100k vs. 25k)*
+# same as obove with extended 
+fit <- rpart::rpart(formula = `100,000` ~ Country + Age + Gender + `Left-Right-3` + `for Peace 01: No Concessions`,
+                    imces_ext$imce
+                    , control = rpart.control(cp = 0.02)  # complexity param, default = 0.01, larger --> less complex 
+) 
+png("Manuscript files/figures/DecTree_ext_RUS_Sold_killed_100k.png", width = 800, height = 600)
+rpart.plot(fit, node.fun = node_fun, cex = 1.2, tweak = 2.0, 
+           # , main = paste('Target: IMCEs of', find_attr(fit$terms[[2]]), '=',  fit$terms[[2]])
+           )
+dev.off()
+
+
+#' *Risk_Nuke (Moderate (10%) vs. none(0%))*
+fit <- rpart::rpart(formula = `Moderate (10%)` ~ Country + Age + Gender + `Left-Right-3` + `for Peace 01: No Concessions`,
+                    imces_ext$imce
+                    , control = rpart.control(cp = 0.02)  # complexity param, default = 0.01, larger --> less complex 
+) 
+png("Manuscript files/figures/DecTree_ext_Risk_Nuke_Moderate.png", width = 800, height = 600)
+rpart.plot(fit, node.fun = node_fun, cex = 1.2, tweak = 2, 
+           # , main = paste('Target: IMCEs of', find_attr(fit$terms[[2]]), '=',  fit$terms[[2]])
+           )
+dev.off()
+
+
+#' *Territorial_Cession (2014 LoC (8%) vs. None (0%))*
+fit <- rpart::rpart(formula = `2014 LoC (8%)` ~ Country + Age + Gender + `Left-Right-3` + `for Peace 01: No Concessions`,
+                    imces_ext$imce
+                    , control = rpart.control(cp = 0.02)  # complexity param, default = 0.01, larger --> less complex 
+) 
+png("Manuscript files/figures/DecTree_ext_Territ_Cession_8perc.png", width = 800, height = 600)
+rpart.plot(fit, node.fun = node_fun, cex = 1.2, tweak = 2, 
+           # , main = paste('Target: IMCEs of', find_attr(fit$terms[[2]]), '=',  fit$terms[[2]])
+           )
+dev.off()
+
+
+
+
+
+
+
+####' *Additional Trees for exploration*
 # IMCEs of 100,000 RUS Sold. killed (vs. reference: 25,000)
 fit <- rpart::rpart(formula = `100,000` ~ Country + age + gender + leftright3,
                     imces_red$imce
                     , control = rpart.control(cp = 0.01)  # complexity param, default = 0.01, larger --> less complex 
                     ) 
-printcp(fit) # how many splits with which cp
-png("Manuscript files/figures/DecTree_red_RU_Sold_killed_100k.png", width = 800, height = 600)
-par(mar = c(0, 0, 0, 0))  # remove margins
 rpart.plot(fit, node.fun = node_fun, 
            main = paste('Target: IMCEs of', find_attr(fit$terms[[2]]), '=',  fit$terms[[2]]))
-dev.off()
 
+#' *Only one really interesting*
+# same as obove with extended 
+fit <- rpart::rpart(formula = `100,000` ~ Country + age + gender + leftright3 + Q15_7,
+                    imces_ext$imce
+                    , control = rpart.control(cp = 0.04)  # complexity param, default = 0.01, larger --> less complex 
+) 
+rpart.plot(fit, node.fun = node_fun, 
+           main = paste('Target: IMCEs of', find_attr(fit$terms[[2]]), '=',  fit$terms[[2]]))
 
+# RUS Soldiers Killed 50k (vs. 25k)
 fit <- rpart::rpart(formula = `50,000.` ~ Country + age + gender + leftright3,
                     imces_red$imce
-                    , control = rpart.control(cp = 0.02)
+                    , control = rpart.control(cp = 0.01)
                     )
-png("Manuscript files/figures/DecTree_red_RU_Sold_killed_50k.png", width = 800, height = 600)
 rpart.plot(fit, node.fun = node_fun, 
            main = paste('Target: IMCEs of', find_attr(fit$terms[[2]]), '=',  fit$terms[[2]]))
-rpart.plot(fit, node.fun = node_fun)
-dev.off()
-
-
-# Num Soldiers Killed Russia (Enlarged Covariate Set)
-fit <- rpart::rpart(formula = `100,000` ~ 
-                      Country + age + gender + leftright3 + 
-                      QV_Ukraine + q3_3 + Q5 + q1617_USA + 
-                      q1617_RUS + Q11 + Q15_1 + Q15_7 + 
-                      q10_2 + q10_6 + q10_8 + q10_10,
-                    imces_ext$imce)
-
-# Generate the plot
-png("Manuscript files/figures/DecTree_red_RU_Sold_killed_100k_ext.png", width = 800, height = 600)
-rpart.plot(fit, node.fun = node_fun, 
-           main = paste('Target: IMCEs of', find_attr(fit$terms[[2]]), '=',  fit$terms[[2]]))
-dev.off()
-
-
-# Plots New
-
-
-# Num Soldiers Killed Russia (4 Subject Level Covars)
-# IMCEs of 100,000 RUS Sold. killed (vs. reference: 25,000)
-fit <- rpart::rpart(formula = `16,000` ~ Country + age + gender + leftright3 + Q15_7,
-                    imces_ext$imce
-                    , control = rpart.control(cp = 0.04)  # complexity param, default = 0.01, larger --> less complex 
-) 
-printcp(fit) # how many splits with which cp
-png("Manuscript files/figures/DecTree_red_RU_Sold_killed_100k.png", width = 800, height = 600)
-par(mar = c(0, 0, 0, 0))  # remove margins
-rpart.plot(fit, node.fun = node_fun, 
-           main = paste('Target: IMCEs of', find_attr(fit$terms[[2]]), '=',  fit$terms[[2]]))
-dev.off()
-
-
-fit <- rpart::rpart(formula = `Moderate (10%)` ~ Country + age + gender + leftright3 + Q15_7,
-                    imces_ext$imce
-                    , control = rpart.control(cp = 0.04)  # complexity param, default = 0.01, larger --> less complex 
-) 
-printcp(fit) # how many splits with which cp
-png("Manuscript files/figures/DecTree_red_RU_Sold_killed_100k.png", width = 800, height = 600)
-par(mar = c(0, 0, 0, 0))  # remove margins
-rpart.plot(fit, node.fun = node_fun, 
-           main = paste('Target: IMCEs of', find_attr(fit$terms[[2]]), '=',  fit$terms[[2]]))
-dev.off()
-
-
-fit <- rpart::rpart(formula = `Low (5%)` ~ Country + age + gender + leftright3 + Q15_7,
-                    imces_ext$imce
-                    , control = rpart.control(cp = 0.04)  # complexity param, default = 0.01, larger --> less complex 
-) 
-printcp(fit) # how many splits with which cp
-png("Manuscript files/figures/DecTree_red_RU_Sold_killed_100k.png", width = 800, height = 600)
-par(mar = c(0, 0, 0, 0))  # remove margins
-rpart.plot(fit, node.fun = node_fun, 
-           main = paste('Target: IMCEs of', find_attr(fit$terms[[2]]), '=',  fit$terms[[2]]))
-dev.off()
-
-
-# sold killed ukr
-fit <- rpart::rpart(formula = `2014 LoC (8%)` ~ Country + age + gender + leftright3 + Q15_7,
-                    imces_ext$imce
-                    , control = rpart.control(cp = 0.02)  # complexity param, default = 0.01, larger --> less complex 
-) 
-printcp(fit) # how many splits with which cp
-png("Manuscript files/figures/DecTree_red_RU_Sold_killed_100k.png", width = 800, height = 600)
-par(mar = c(0, 0, 0, 0))  # remove margins
-rpart.plot(fit, node.fun = node_fun, 
-           main = paste('Target: IMCEs of', find_attr(fit$terms[[2]]), '=',  fit$terms[[2]]))
-dev.off()
-
-
-# sold killed ukr
-fit <- rpart::rpart(formula = `100B` ~ Country + age + gender + leftright3 + Q15_7,
-                    imces_ext$imce
-                    , control = rpart.control(cp = 0.01)  # complexity param, default = 0.01, larger --> less complex 
-) 
-printcp(fit) # how many splits with which cp
-png("Manuscript files/figures/DecTree_red_RU_Sold_killed_100k.png", width = 800, height = 600)
-par(mar = c(0, 0, 0, 0))  # remove margins
-rpart.plot(fit, node.fun = node_fun, 
-           main = paste('Target: IMCEs of', find_attr(fit$terms[[2]]), '=',  fit$terms[[2]]))
-dev.off()
 
 
 
 
-# Q15_1 == 1 --> Exit Nato, if consequence would be more Russian Soldiers killed
-# Most people would say, that if 
-fit <- rpart::rpart(formula = `50,000.` ~ 
-                      Country + age + gender + leftright3 + 
-                      QV_Ukraine + q3_3 + Q5 + q1617_USA + 
-                      q1617_RUS + Q11 + Q15_1 + Q15_7 + 
-                      q10_2 + q10_6 + q10_8 + q10_10,
-                    imces$imce)
-rpart.plot(fit)
-png("Manuscript files/figures/DecTree_red_RU_Sold_killed_50k_ext.png", width = 800, height = 600)
-rpart.plot(fit, node.fun = node_fun, 
-           main = paste('Target: IMCEs of', find_attr(fit$terms[[2]]), '=',  fit$terms[[2]]))
-dev.off()
-
-
-
-# Political Self-Determination
-fit_2 <- rpart::rpart(formula = `No EU/NATO` ~ Country + age + gender + leftright3,
-                    imces$imce)
-rpart.plot(fit_2)
-
-
-# Territorial Cession
-fit_3 <- rpart::rpart(formula = `2023 LoC (16%)` ~ Country + age + gender + leftright3,
-                      imces$imce)
-rpart.plot(fit_3)
-
-fit_4 <- rpart::rpart(formula = `2014 LoC (8%)` ~ Country + age + gender + leftright3,
-                      imces$imce)
-rpart.plot(fit_4)
-
-
-# Num Civilians Killed Ukraine
-fit <- rpart::rpart(formula = None ~ Country + age + gender + leftright3,
-                    imces$imce)
-rpart.plot(fit)
 

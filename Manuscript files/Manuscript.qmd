@@ -158,24 +158,80 @@ We then used decision trees to more thoroughly investigate the relationships of 
 
 
 # Results
-@fig-varimps-red displays the variable importance measures for the subject-level covariates as extracted from the reduced model. Variable Importances are colorized using heatmap-like colorcoding with stronger red (vs. white) color indicating larger importance measures. 
+@fig-varimps-ext displays the variable importance measures for the subject-level covariates as extracted from the cjbart model. Variable Importances are colorized using heatmap-like colorcoding with stronger red (vs. white) color indicating larger importance measures. 
 
-![Red VarImps](figures/RF_VarImps_red.png){#fig-varimps-red}
+![Ext VarImps](figures/RF_VarImps_ext_v2.png){#fig-varimps-ext}
 
-The random forest variable importances as extracted from the extended model are displayed in @gif-varimps-ext. 
+@image-panel depicts 4 decision trees that were fitted to better understand how different subject level covariates contribute to the observed effect heterogeneity. These exemplary decision trees were selected regarding content and interpretation and to highlight how single decision tress can be utilized for model interpretation.  
 
-![Ext VarImps](figures/RF_VarImps_ext.png){#fig-varimps-ext}
+```{r image-panel, echo=FALSE, fig.align='center'}
+#| fig-cap: "Exemplary deicision trees for predicting IMCEs based on Covariates."
+library(gridExtra)
+library(grid)
+library(png)
 
-Figures X-Y depict the more specific decision trees that were fitted to better understand how different subject level covariates contribute to the observed effect heterogeneity. 
+# Load the images from your laptop
+img1 <- rasterGrob(png::readPNG("figures/DecTree_ext_Civ_killed_Ukr_16k.png"), interpolate = TRUE)
+img2 <- rasterGrob(png::readPNG("figures/DecTree_ext_RUS_Sold_killed_100k.png"), interpolate = TRUE)
+img3 <- rasterGrob(png::readPNG("figures/DecTree_ext_Risk_Nuke_Moderate.png"), interpolate = TRUE)
+img4 <- rasterGrob(png::readPNG("figures/DecTree_ext_Territ_Cession_8perc.png"), interpolate = TRUE)
+
+# Create subfigure captions
+label1 <- textGrob("a) Ukrainian Civilians Killed (16k vs. 4k)", 
+                   x = 0.05, y = 0.95, hjust = 0, vjust = 1, gp = gpar(fontsize = 8, fontface = "bold"))
+label2 <- textGrob("b) Russian Soldiers killed (100k vs. 25k)", 
+                   x = 0.05, y = 0.95, hjust = 0, vjust = 1, gp = gpar(fontsize = 8, fontface = "bold"))
+label3 <- textGrob("c) Risk of Nuclear Strike (10% vs. 0%)", 
+                   x = 0.05, y = 0.95, hjust = 0, vjust = 1, gp = gpar(fontsize = 8, fontface = "bold"))
+label4 <- textGrob("d) Territorial Cession (2014 LoC (8%)) vs. None", 
+                   x = 0.05, y = 0.95, hjust = 0, vjust = 1, gp = gpar(fontsize = 8, fontface = "bold"))
+
+
+# Combine images and captions
+panel1 <- arrangeGrob(img1, top = label1)
+panel2 <- arrangeGrob(img2, top = label2)
+panel3 <- arrangeGrob(img3, top = label3)
+panel4 <- arrangeGrob(img4, top = label4)
+
+# Add a blank grob as a spacer
+spacer <- textGrob("", gp = gpar(fontsize = 5)) 
+
+# Arrange the panels in a 2x2 grid with space between rows
+grid <- grid.arrange(
+  arrangeGrob(panel1, panel2, ncol = 2),
+  spacer, 
+  arrangeGrob(panel3, panel4, ncol = 2),
+  nrow = 3, heights = c(0.45, 0.1, 0.45) 
+)
+
+```
+
+<!-- This is how it should work using quarto syntax but doesnt display captions properly and is weirdly centered -->
+<!-- ::::{#fig-group_label layout-ncol=2 layout-nrow=2} -->
+
+<!-- :::{#firstcol .column width="50%"} -->
+
+<!-- ![test1](figures/DecTree_ext_Civ_killed_Ukr_16k.png){#fig-civ_UKR} -->
+
+<!-- ![test2](figures/DecTree_ext_RUS_Sold_killed_100k.png){#fig-sold_RUS} -->
+<!-- ::: -->
+
+<!-- :::{#secondcol .column width="50%"} -->
+
+<!-- ![test3](figures/DecTree_ext_Risk_Nuke_Moderate.png){#fig-nuke} -->
+<!-- ![test4](figures/DecTree_ext_Territ_Cession_8perc.png){#fig-territ} -->
+<!-- ::: -->
+
+<!-- Exemplary Single Decision Tree Partitions for Predicting IMCEs -->
+<!-- :::: -->
 
 
 
 
 
+# Discussion
 
-
-
-# Integration of Results
+## Integration of Results
 -Einordnung der Ergebnisse 
 -Country in general important as seen in the reduced model 
 -association with country for almost all IMCEs 
@@ -190,14 +246,13 @@ Figures X-Y depict the more specific decision trees that were fitted to better u
 --> describe questions and interpret
 
 
--Vergleich mit factorHet 
-- short description of factor het results 
+<!-- -Vergleich mit factorHet eher raus -->
+<!-- - short description of factor het results  -->
 
 
--Vergleich mit “normaler” Subgruppen Analyse
+-Vergleich mit “normaler” Subgruppen Analyse --> aka vergleich mit deren paper 
 
-# Discussion
-
+## Methodological Discussion
 Discussion & Limitations -Tuning -Wie viele Covariates (inference vs. exploration) -Stabilität
 
 -weitere Modelle: 
