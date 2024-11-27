@@ -246,15 +246,15 @@ desired_orders_df <- data.frame(
                 rep("Risk_Nuke", 2),
                 rep("Territ_Cession", 3),
                 rep("Polit_Self_Det_UKR", 2)),
-  Level = c("50,000", "25,000",
-            "100,000", "50,000.",
-            "16,000", "8,000",
-            "200B", "100B",
-            "0.3% of GDP", "0.2% of GDP",
-            "0.3% of GDP.", "0.2% of GDP.",
-            "Moderate (10%)", "Low (5%)",
-            "2023 LoC (16%)", "2014 LoC (8%)", "Crimea (4%)",
-            "Russian influence", "No EU/NATO"),
+  Level = c("25,000", "50,000", 
+            "50,000.", "100,000", 
+            "8,000", "16,000", 
+            "100B", "200B",
+            "0.2% of GDP", "0.3% of GDP", 
+            "0.2% of GDP.", "0.3% of GDP.", 
+            "Low (5%)", "Moderate (10%)", 
+            "Crimea (4%)", "2014 LoC (8%)", "2023 LoC (16%)",
+            "No EU/NATO", "Russian influence"),
   global_order = 1:19
 )
 
@@ -262,13 +262,10 @@ desired_orders_df <- data.frame(
 plot_data <- plot_data %>%
   left_join(desired_orders_df, by = c("Attribute", "Level"))
 
-# Remove any rows that do not have a desired order (if any)
-plot_data <- plot_data %>% 
-  filter(!is.na(global_order))
-
 # Reorder the levels of AttributeLevel according to global_order
 plot_data$AttributeLevel <- factor(plot_data$AttributeLevel, 
                                    levels = plot_data$AttributeLevel[order(-plot_data$global_order)])
+plot_data <- plot_data[order(plot_data$global_order), ]
 
 # Define baseline levels with IMCE = 0
 baseline_levels <- data.frame(
@@ -298,6 +295,7 @@ plot_data <- plot_data %>%
 
 # Reorder AttributeLevel factor based on updated global_order
 plot_data$AttributeLevel <- factor(plot_data$AttributeLevel, levels = plot_data$AttributeLevel[order(-plot_data$global_order)])
+plot_data <- plot_data[order(plot_data$global_order), ]
 
 # plot_data_legacy <- plot_data
 plot_data <- plot_data_legacy
@@ -306,7 +304,7 @@ plot_data <- plot_data_legacy
 # Reverse the order of levels within each Attribute while keeping Attribute order
 plot_data <- plot_data %>%
   group_by(Attribute) %>%
-  mutate(AttributeLevel = factor(AttributeLevel, levels = rev(unique(AttributeLevel)))) %>%
+  # mutate(AttributeLevel = factor(AttributeLevel, levels = rev(unique(AttributeLevel)))) %>%
   ungroup()
 
 
@@ -327,9 +325,6 @@ ggplot(plot_data, aes(x = IMCE, y = AttributeLevel)) +
     axis.title.x = element_text(size = 12),
     plot.title = element_text(size = 14, face = "bold")
   )
-
-
-
 
 
 
