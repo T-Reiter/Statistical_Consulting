@@ -10,6 +10,10 @@ library(dplyr)
 library(ggplot2)
 library(rpart)
 library(rpart.plot) # standard built-in plot function used in the paper
+library(dplyr)
+library(tidyr)
+library(ggtext)
+
 
 ### Set WD
 # setwd(dirname(rstudioapi::getSourceEditorContext()$path))
@@ -180,7 +184,152 @@ imces_ext <- IMCE(data = cj_tidy[, vars_ext],
 )
 
 # saveRDS(imces_ext, "1c_Model_Objects/2024-11-18_imces_ext_2.rds")
-imces_ext2 <- readRDS("1c_Model_Objects/2024-11-18_imces_ext_2.rds")
+imces_ext <- readRDS("1c_Model_Objects/2024-11-18_imces_ext.rds")
+
+
+
+###' *Plot Distribution of IMCEs* 
+# plot(imces_ext) # plots IMCEs ordered by size (not what we want)
+# Extract data frames from the results
+imces_ext <- readRDS("1c_Model_Objects/2024-11-18_imces_ext.rds")
+attribute_levels <- imces_ext$att_levels # attribute levels
+imce_df <- imces_ext$imce # point estimates
+imce_lower_df <- imces_ext$imce_lower 
+imce_upper_df <- imces_ext$imce_upper
+att_lookup <- imces_ext$att_lookup
+
+
+# Reshape IMCE data from wide to long format
+imce_long <- imce_df %>%
+  select(all_of(c(attribute_levels, 'c_id'))) %>%
+  pivot_longer(cols = -c_id, names_to = "Level", values_to = "IMCE")
+
+imce_lower_long <- imce_lower_df %>%
+  select(all_of(c(attribute_levels, 'c_id'))) %>%
+  pivot_longer(cols = -c_id, names_to = "Level", values_to = "Lower")
+
+imce_upper_long <- imce_upper_df %>%
+  select(all_of(c(attribute_levels, 'c_id'))) %>%
+  pivot_longer(cols = -c_id, names_to = "Level", values_to = "Upper")
+
+# Combine IMCE estimates and confidence intervals
+imce_combined <- imce_long %>%
+  left_join(imce_lower_long, by = c("c_id", "Level")) %>%
+  left_join(imce_upper_long, by = c("c_id", "Level"))
+
+# Merge with att_lookup to get Attribute names
+imce_combined <- imce_combined %>%
+  left_join(att_lookup, by = c("Level" = "Level"))
+
+# Calculate mean IMCE and confidence intervals for each attribute level
+plot_data <- imce_combined %>%
+  group_by(Attribute, Level) %>%
+  summarize(
+    IMCE = mean(IMCE, na.rm = TRUE),
+    Lower = mean(Lower, na.rm = TRUE),
+    Upper = mean(Upper, na.rm = TRUE)
+  ) %>%
+  ungroup()
+
+# Create a combined label for Y-axis
+plot_data <- plot_data %>%
+  mutate(AttributeLevel = paste(Attribute, Level, sep = " - "))
+
+# Create the desired order data frame
+desired_orders_df <- data.frame(
+  Attribute = c(rep("Sold_killed_UKR", 2),
+                rep("Sold_killed_RUS", 2),
+                rep("Civ_killed_UKR", 2),
+                rep("Infra_Destr_UKR", 2),
+                rep("Perc_GDP_milit", 2),
+                rep("Perc_GDP_econ", 2),
+                rep("Risk_Nuke", 2),
+                rep("Territ_Cession", 3),
+                rep("Polit_Self_Det_UKR", 2)),
+  Level = c("50,000", "25,000",
+            "100,000", "50,000.",
+            "16,000", "8,000",
+            "200B", "100B",
+            "0.3% of GDP", "0.2% of GDP",
+            "0.3% of GDP.", "0.2% of GDP.",
+            "Moderate (10%)", "Low (5%)",
+            "2023 LoC (16%)", "2014 LoC (8%)", "Crimea (4%)",
+            "Russian influence", "No EU/NATO"),
+  global_order = 1:19
+)
+
+# Merge desired order into plot_data
+plot_data <- plot_data %>%
+  left_join(desired_orders_df, by = c("Attribute", "Level"))
+
+# Remove any rows that do not have a desired order (if any)
+plot_data <- plot_data %>% 
+  filter(!is.na(global_order))
+
+# Reorder the levels of AttributeLevel according to global_order
+plot_data$AttributeLevel <- factor(plot_data$AttributeLevel, 
+                                   levels = plot_data$AttributeLevel[order(-plot_data$global_order)])
+
+# Define baseline levels with IMCE = 0
+baseline_levels <- data.frame(
+  Attribute = c("Sold_killed_UKR", "Sold_killed_RUS", "Civ_killed_UKR",
+                "Infra_Destr_UKR", "Perc_GDP_milit", "Perc_GDP_econ",
+                "Risk_Nuke", "Territ_Cession", "Polit_Self_Det_UKR"),
+  Level = c('12,500', '25,000.', '4,000', '50B', '0.1% of GDP', '0.1% of GDP.',
+            'Not present (0%)', 'None', 'Full'),
+  IMCE = 0,
+  Lower = 0,
+  Upper = 0
+)
+
+# Add baseline levels to the plot_data
+plot_data <- plot_data %>%
+  bind_rows(baseline_levels)
+
+# Update global order to ensure baselines are first within their attributes
+plot_data <- plot_data %>%
+  group_by(Attribute) %>%
+  mutate(global_order = ifelse(is.na(global_order), min(global_order, na.rm = TRUE) - 1, global_order)) %>%
+  ungroup()
+
+# Update the AttributeLevel for the baselines
+plot_data <- plot_data %>%
+  mutate(AttributeLevel = paste(Attribute, Level, sep = " - "))
+
+# Reorder AttributeLevel factor based on updated global_order
+plot_data$AttributeLevel <- factor(plot_data$AttributeLevel, levels = plot_data$AttributeLevel[order(-plot_data$global_order)])
+
+# plot_data_legacy <- plot_data
+plot_data <- plot_data_legacy
+
+
+# Reverse the order of levels within each Attribute while keeping Attribute order
+plot_data <- plot_data %>%
+  group_by(Attribute) %>%
+  mutate(AttributeLevel = factor(AttributeLevel, levels = rev(unique(AttributeLevel)))) %>%
+  ungroup()
+
+
+
+# Plot with baselines included
+ggplot(plot_data, aes(x = IMCE, y = AttributeLevel)) +
+  geom_point() +
+  geom_errorbarh(aes(xmin = Lower, xmax = Upper), height = 0.2) +
+  labs(
+    x = "IMCE Estimate",
+    y = "Attribute and Level",
+    title = "IMCE Estimates with Confidence Intervals (Including Baselines)"
+  ) +
+  theme_minimal() +
+  theme(
+    axis.text.y = element_text(size = 10),
+    axis.title.y = element_text(size = 12),
+    axis.title.x = element_text(size = 12),
+    plot.title = element_text(size = 14, face = "bold")
+  )
+
+
+
 
 
 

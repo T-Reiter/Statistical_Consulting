@@ -158,11 +158,15 @@ We then used decision trees to more thoroughly investigate the relationships of 
 
 
 # Results
+Global AMCEs
+
+
+
 @fig-varimps-ext displays the variable importance measures for the subject-level covariates as extracted from the cjbart model. Variable Importances are colorized using heatmap-like colorcoding with stronger red (vs. white) color indicating larger importance measures. 
 
 ![Ext VarImps](figures/RF_VarImps_ext_v2.png){#fig-varimps-ext}
 
-@image-panel depicts 4 decision trees that were fitted to better understand how different subject level covariates contribute to the observed effect heterogeneity. These exemplary decision trees were selected regarding content and interpretation and to highlight how single decision tress can be utilized for model interpretation.  
+@image-panel depicts 4 exemplary decision trees that were fitted to better understand how different subject level covariates contribute to effect heterogeneity. These decision trees were selected based on content-related and interpretational criteria and to highlight how single decision tress can be utilized for model interpretation.  
 
 ```{r image-panel, echo=FALSE, fig.align='center'}
 #| fig-cap: "Exemplary deicision trees for predicting IMCEs based on Covariates."
@@ -227,17 +231,10 @@ grid <- grid.arrange(
 
 
 
-
-
 # Discussion
 
 ## Integration of Results
--Einordnung der Ergebnisse 
--Country in general important as seen in the reduced model 
--association with country for almost all IMCEs 
---> Trees: mostly UK vs Rest (then more specific associations)
---> Gender relevant for perc. gdp. milit & civ. killed UKR 
---> Left-Right-Relevant for perc. gdp econ 
+
 
 -When using additional covariates results change quite a bit
 --> country still relevant but rather for the risk nuke and civ killed 
