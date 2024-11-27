@@ -128,33 +128,82 @@ Even further, trees might even identify interaction effects between multiple cov
 In the following, we showcase the application of cjbart to data provided by Prof. Dr. Paul Thurner and Fabian Haggerty from the Geschwister-Scholl-Institute of Political Science, LMU Munich.
 The data were first described in CITE.
 In their work, CITE aimed at investigating which attributes citizens from five different NATO-member countries (United States [US], United Kingdom [UK], Germany, Italy, and France) deem important when deciding whether Ukraine should be supported economically and militarily against the Russian aggression.
-For this, CITE conducted a conjoint experiment where participants from the five countries chose one of two possible profiles. 
+For this, CITE conducted a conjoint experiment where $N = 10,011$ participants from the five countries chose one of two possible profiles. 
 In these profiles, nine different attributes with varying attribute levels were manipulated randomly to indicate the consequences that a support of Ukraine would entail if the profile was chosen.
-The different attributes and their corresponding levels are shown in TABLE.
-Additionally, subject-level covariates were assessed, for example, participants' age, gender, political orientation, or their country of origin (of the five mentioned above).
+The different attributes, their corresponding levels, and the reference categories we used for our analyses are shown in TABLE.
+Additionally, subject-level covariates were assessed, for example, participants' age, gender, political orientation, or their country of origin (of the five countries mentioned above).
+
+```{r attributes, echo=FALSE}
+#| output: asis
+library(kableExtra)
+
+attrib <- data.frame(Attribute = c("Number of Ukrainian soldiers killed?",
+                                   "Number of Russian soldiers killed?",
+                                   "Number of Ukrainian civilians killed?",
+                                   "Value of destroyed infrastructure in Ukraine?",
+                                   "[Country] contribution to military aid to Ukraine?",
+                                   "[Country] contribution to economic aid to Ukraine?",
+                                   "Risk of a Russian nuclear strike on Ukraine?",
+                                   "How much political self-determination of Ukraine?",
+                                   "Territorial cessions of Ukraine to Russia?"),
+                     Attribute_Levels = c("1. 12,500 <br> 2. 25,000 <br> 3. 50,000",
+                                          "1. 25,000 <br> 2. 50,000 <br> 3. 100,000",
+                                          "1. 4,000 <br> 2. 8,000 <br> 3. 16,000",
+                                          "1. $50B <br> 2. $100B <br> 3. $200B",
+                                          "1. X bn (0.1% of [Country] GDP) <br> 2. X bn (0.2% of [Country] GDP) <br> 3. X bn (0.3% of [Country] GDP)",
+                                          "1. X bn (0.1% of [Country] GDP) <br> 2. X bn (0.2% of [Country] GDP) <br> 3. X bn (0.3% of [Country] GDP)",
+                                          "1. Not present (0%) <br> 2. Low (5%) <br> 3. Moderate (10%)",
+                                          "1. Full self-determination <br> 2. No NATO/EU membership <br> 3. Russian influence over Ukr. gov.",
+                                          "1. No cessions of territory <br> 2. Crimea (ca. 4% of land) <br> 3. 2014 Line of Conflict (ca. 8%) <br> 4. 2023 Line of Conflict (ca. 16%)"),
+                     Reference = c("12,500",
+                                   "25,000",
+                                   "4,000",
+                                   "$50B",
+                                   "0.1% of GDP",
+                                   "0.1% of GDP",
+                                   "Not present (0%)",
+                                   "Full self-determination",
+                                   "No cessions of territory"))
+
+knitr::kable(attrib, 
+             format = "html", 
+             col.names = c("Attribute", "Attribute Levels", "Reference Category"), 
+             escape = FALSE,
+             caption = "Attributes, attribute levels, and reference categories used in the analyses.")
+
+
+```
 
 To investigate which attributes and attribute levels matter when people decide whether Ukraine should be supported in their defense endeavors, CITE estimated AMCEs as well as marginal means for subgroup analyses.
-THEIR RESULTS.
-
-As described above, this approach comes with the disadvantage that the potentially complex heterogeneity of attribute effects cannot be assessed.
+The results of their analyses will be outlined below, where we compare them to the results of our analyses using cjbart.
+As described above, the "classical" approach of estimating AMCEs and conducting subgroup analyses comes with the disadvantage that the potentially complex heterogeneity of attribute effects cannot be assessed.
 Additionally, subgroup analyses can only be carried out for a priori defined groups.
+If covariates have many different levels, it quickly becomes unfeasible to carry out all subgroup analyses.
+If covariates are continuous, it might even be impossible, unless arbitrarily chosen splits to discretize the data are performed.
 
-Daten noch etwas besser beschreiben N, Studie etc.
+Thus, the goal of this project is to complement the existing results reported by CITE with an exploratory analysis.
+Using cjbart, we are able to scrutinize the data for heterogeneity of attribute effects.
+Additionally, using the decision tree approach described above, we perform exploratory subgroup analyses.
+The goal of these analyses is to identify which groups differ in their preferences regarding specific attribute levels.
 
 
 # Method
-Data of the above conjoint experiment was fit using the previously described cjbart approach and package.
-First, we fitted a *reduced model* based on a reduced data set (i.e. reduced model) only containing the profile attributes and subject-level covariates age, country, gender, and left-right-3 (i.e., political orientation categorized into the 3 categories left, middle, right). 
-We then fitted a second *extended model* using a more extensive data set (i.e., extended model) with subject-level covariates additionally including subjects' agreement on different more specific statements regarding political or XXX statements (e.g., EXAMPLE). 
-This results in trained BART models that were used to make the (counterfactual) predictions needed for calculating the quantities of interest such as IMCEs or AMCEs.
+Data of the above conjoint experiment was modeled by the previously described cjbart approach.
+For this, we used the R package *cjbart* described in CITE.
+We fitted a BART model containing the profile attributes and various subject-level covariates: age, country, gender, and political orientation, and subjects' agreement on different statements regarding political statements (e.g., EXAMPLE).
+A list of all covariates, including their type, can be found in TABLE.
+This resulted in a trained BART model that was used to make the (counterfactual) predictions needed for calculating the quantities of interest, such as IMCEs or AMCEs.
 
-In the next step, these (counterfactual) predictions were used to calculate OMCEs. These were aggregated to the different individual- and attribute specific IMCEs. We used the reference levels as specified in Table X. 
+In the next step, these (counterfactual) predictions were used to calculate OMCEs. 
+These were aggregated to the different individual- and attribute-specific IMCEs. 
 
-To better understand the associations of different subject-level covariates and individual effects of specific attributes (i.e., IMCEs) we used the two approaches proposed by CITE. 
-For this, a random forest model was fit on the IMCEs using the respective individuals' subject-level covariates. 
-We then used decision trees to more thoroughly investigate the relationships of specific IMCEs and covariates for which the previous step suggested relevant contribution to the prediction. As already proposed in CITE, we found complexity parameter values (cp) between 0.02 and 0.04 to yield useful results. Usage of larger cp values resulted in overly simplified trees often consisting of only a single root node. Smaller cp values, on the other hand, often resulted in overly deep trees with little differentiation across many terminal nodes providing too specific interpretations. 
-
-
+To better understand the associations of different subject-level covariates and individual effects of specific attributes (i.e., IMCEs), we used the two tree-based approaches proposed by CITE. 
+For this, a random forest model was first fit, predicting the IMCEs using the respective individuals' subject-level covariates. 
+We then used decision trees to more thoroughly investigate the relationships of specific IMCEs and covariates for which the previous step suggested relevant contribution to the prediction. 
+As already proposed in CITE, we found complexity parameter values (cp) between 0.02 and 0.04 to yield useful results. 
+Usage of larger cp values resulted in overly simplified trees often consisting of only a single root node. 
+Smaller cp values, on the other hand, often resulted in overly deep trees with little differentiation across many terminal nodes, making the interpretation of substantive differences too difficult. 
+In the next section, we present the results of these analyses, followed by a discussion and comparison to the results reported by CITE.
 
 
 # Results
