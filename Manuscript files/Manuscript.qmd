@@ -195,6 +195,7 @@ The goal of these analyses is to identify which groups differ in their preferenc
 
 
 # Method
+
 Data of the above conjoint experiment was modeled by the previously described cjbart approach.
 For this, we used the R package *cjbart* described in CITE.
 We fitted a BART model containing the profile attributes and various subject-level covariates: age, country, gender, and political orientation, and subjects' agreement on different statements regarding political statements (e.g., EXAMPLE).
@@ -222,7 +223,7 @@ covs <- data.frame(
     "I can see why Russia feels <br> threatened by the West.",
     "Would you say that your general opinion <br> of the NATO is very positive, slightly positive, neither positive nor negative, slightly negative, or very negative?",
     "Ukraine should waive a NATO <br> membership if this would bring peace.",
-    "Ukraine should not make <br> any cessions to achieve peace.",
+    "Ukraine should not make <br> any concessions to achieve peace.",
     "Trading or deliveries of weapons <br> between countries should be prohibited.",
     "If a country is being attacked and <br> the aggressor is targeting civilians, <br> [country] should provide military support.",
     "If a country is being attacked and <br> the aggressor is targeting critical <br> infrastructure (e.g., hospitals or electricity <br> and water supply), [country] should provide military support.",
@@ -271,6 +272,7 @@ In the next section, we present the results of these analyses, followed by a dis
 
 
 # Results
+
 In @fig-amces we present the AMCEs estimated by averaging the IMCEs calculated using the cjbart model. 
 
 ![AMCEs](figures/AMCEs.png){#fig-amces}
@@ -348,32 +350,52 @@ grid <- grid.arrange(
 # Discussion
 
 ## Integration of Results
-For AMCEs, theoretically most favorable events served as baseline. As can be seen, increased attribute levels (i.e., less favourable events) were usually linked to significantly decreased levels of support. For example, increasing the risk of a nuclear strike from the reference level 'Not present (0%)' to 'Moderate (10%)' decreased the average probability of a participant choosing the latter profile by about -8.5%. The AMCE point estimates were in line with the AMCEs reported in CITE, which is why we refrain from an in-depth discussion here and refer the interested reader to CITE.
+
+For AMCEs, theoretically most favorable events served as baseline. 
+As can be seen, increased attribute levels (i.e., less favourable events) were usually linked to significantly decreased levels of support. 
+For example, increasing the risk of a nuclear strike from the reference level 'Not present (0%)' to 'Moderate (10%)' decreased the average probability of a participant choosing the latter profile by about -8.5%. 
+The AMCE point estimates were in line with the AMCEs reported in CITE, which is why we refrain from an in-depth discussion here and refer the interested reader to CITE.
 HIER WAS DAZU SCHREIBEN DAS WIR HÖHERE SEs HABEN? DAZU SCHREIBEN DIE HALT IN IHREM PAPER EH GAR NIX 
 
-As a next step, we predicted the subject-level IMCEs using the subject-level covariates. Based on this random forest model, we then calculated variable importance measures which served as indicators for variables associated with effect heterogeneity. We found the highest variable importance values for the subject-level covariates Country, Geneder, and the items asking participants about whether they generally support supply of weapons to countries defending themselves against other country's invasions (Q10_10) and whether the Ukraine should make any concessions in order to achieve peace (Q15_7). 
+As a next step, we predicted the subject-level IMCEs using the subject-level covariates. 
+Based on this random forest model, we then calculated variable importance measures which served as indicators for variables associated with effect heterogeneity. 
+We found the highest variable importance values for the subject-level covariates Country, Geneder, and the items asking participants about whether they generally support supply of weapons to countries defending themselves against other country's invasions (Q10_10) and whether the Ukraine should make any concessions in order to achieve peace (Q15_7). 
 
-These variable importance measures do not provide any more interpretability than which covariates in general seem to matter, which is why we further substantiated the previous analysis by fitting single decision trees to different IMCEs. IMCEs for this were selected due to content-related purposes and to highlight how decision trees facilitate interpretation of effect heterogeneity. As can be seen in @image-panel (upper left panel), for participants from countries different to the UK the probability to select a given profile decreased by -12.5% if the respective profile was associated with 16,000 (vs. 4,000) Ukrainian civilian casualties. For participants from the UK, the larger number of civilian casualties was also linked to a lower profile selection probability, although, the attribute level was less influential for their decision. In general, we saw the UK vs other countries split in many different trees possibly indicating slight differences in attitudes towards weapon supplies across these countries. 
+These variable importance measures do not provide any more interpretability than which covariates in general seem to matter, which is why we further substantiated the previous analysis by fitting single decision trees to different IMCEs. 
+IMCEs for this were selected due to content-related purposes and to highlight how decision trees facilitate interpretation of effect heterogeneity. 
+As can be seen in @image-panel (upper left panel), for participants from countries different to the UK the probability to select a given profile decreased by -12.5% if the respective profile was associated with 16,000 (vs. 4,000) Ukrainian civilian casualties. 
+For participants from the UK, the larger number of civilian casualties was also linked to a lower profile selection probability, although, the attribute level was less influential for their decision. 
+In general, we saw the UK vs other countries split in many different trees possibly indicating slight differences in attitudes towards weapon supplies across these countries. 
 Moreover, whether participants were female (within both UK and Non-UK subgroups) predicted 
 
-
-Apart from this, participants' attitude about whether the Ukraine should make any concessions to Russia if this would lead to a peace agreement predicted some level of effect heterogeneity to an interesting extent. For example. with regards to Russian soldiers killed, people that selected that the Ukraine should not make any concessions, on average were more likely to select profiles with a larger number of Russian military casualties (100,000 vs. 25,000). Interestingly, out of the investigated IMCE decision trees this was the only case for which we observed splits resulting in nodes with different signs meaning that the probability of profile selection decreased in one child node and increased in the other. These results have however, to be interpreted with caution as the split cannot be interpreted as a sign of significant differences. As for this result, though having different signs, the differences in probability are still small (less than 2%) and close to zero. 
-Lastly, for the attribute of how much cession of Ukrainian territory a selected profile would result in, we once again found the general attitude towards Ukrainian concessions to predict effect heterogeneity. People that selected, that Ukraine should make no concessions, were 16% less likely to select profiles with the 'comparably moderate negative outcome' of Ukraine loosing 8% of their territory (resembling the 2014 Line of Conflict) (vs. reference level 'None (0%)'). For people that did not select the no concessions option, profile selection probabilities for the same attribute level decreased by only 2.4%. 
-
+Apart from this, participants' attitude about whether the Ukraine should make any concessions to Russia if this would lead to a peace agreement predicted some level of effect heterogeneity to an interesting extent. 
+For example. with regards to Russian soldiers killed, people that selected that the Ukraine should not make any concessions, on average were more likely to select profiles with a larger number of Russian military casualties (100,000 vs. 25,000). 
+Interestingly, out of the investigated IMCE decision trees this was the only case for which we observed splits resulting in nodes with different signs meaning that the probability of profile selection decreased in one child node and increased in the other. 
+These results have however, to be interpreted with caution as the split cannot be interpreted as a sign of significant differences. 
+As for this result, though having different signs, the differences in probability are still small (less than 2%) and close to zero. 
+Lastly, for the attribute of how much cession of Ukrainian territory a selected profile would result in, we once again found the general attitude towards Ukrainian concessions to predict effect heterogeneity. 
+People that selected, that Ukraine should make no concessions, were 16% less likely to select profiles with the 'comparably moderate negative outcome' of Ukraine loosing 8% of their territory (resembling the 2014 Line of Conflict) (vs. reference level 'None (0%)'). 
+For people that did not select the no concessions option, profile selection probabilities for the same attribute level decreased by only 2.4%. 
 
 <!-- -Vergleich mit factorHet eher raus -->
 <!-- - short description of factor het results  -->
 
 <!-- -Vergleich mit “normaler” Subgruppen Analyse aka vergleich mit deren paper -->
-However, as already outlined in many other papers, these AMCEs cannot be used to reason about absolute profile selection probabilities but are relative in nature. Accordingly a given AMCE has always to be interpreted as change in profile selection probability *relative to a given reference level* of the same attribute. This still holds when comparing IMCEs across different subsets of participants, no matter whether these partitions were or are said-to-be defined theory-based or were generated by data (as in the previous approach). Accordingly the average IMCEs in the different terminal nodes of the decision trees always are relative to the baseline profile selection probability taking into account the reference level *and* the subgroups of participants. 
-The often applied approach of calculating Marginal Means, on the other hand, provides marginalized profile selection probabilities for different attribute levels. This allows for straightforward reading off the absolute profile selection probabilities. However, as marginal means are solely descriptive, they do not allow for any causal interpretation. Accordingly, whether AMCEs or MMs are used should be guided by the kind of conclusions that shall be made. As in the present case, the goal was to understand how different subject-level covariates affect decisions-making among different weapon supply attributes, AMCEs provide the right choice for answering this question.
-
-
+However, as already outlined in many other papers, these AMCEs cannot be used to reason about absolute profile selection probabilities but are relative in nature. 
+Accordingly a given AMCE has always to be interpreted as change in profile selection probability *relative to a given reference level* of the same attribute. 
+This still holds when comparing IMCEs across different subsets of participants, no matter whether these partitions were or are said-to-be defined theory-based or were generated by data (as in the previous approach). 
+Accordingly the average IMCEs in the different terminal nodes of the decision trees always are relative to the baseline profile selection probability taking into account the reference level *and* the subgroups of participants. 
+The often applied approach of calculating Marginal Means, on the other hand, provides marginalized profile selection probabilities for different attribute levels. 
+This allows for straightforward reading off the absolute profile selection probabilities. 
+However, as marginal means are solely descriptive, they do not allow for any causal interpretation. 
+Accordingly, whether AMCEs or MMs are used should be guided by the kind of conclusions that shall be made. 
+As in the present case, the goal was to understand how different subject-level covariates affect decisions-making among different weapon supply attributes, AMCEs provide the right choice for answering this question.
 
 
 -Vergleich mit “normaler” Subgruppen Analyse --> aka vergleich mit deren paper 
 
 ## Methodological Discussion
+
 Discussion & Limitations -Tuning -Wie viele Covariates (inference vs. exploration) -Stabilität
 
 -weitere Modelle: 
