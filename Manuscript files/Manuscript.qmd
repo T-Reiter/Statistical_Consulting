@@ -6,6 +6,12 @@ author:
   - name: Philipp Sterner
     email: p.sterner@psy.lmu.de
 format: pdf
+pdf-engine: xelatex
+header-includes:
+  - \usepackage{array}
+  - \usepackage{ragged2e}
+  - \setlength{\extrarowheight}{2pt}
+  - \renewcommand{\arraystretch}{1.5}  # Adjust row spacing
 floatsintext: yes
 editor_options: 
   markdown: 
@@ -192,49 +198,65 @@ The goal of these analyses is to identify which groups differ in their preferenc
 Data of the above conjoint experiment was modeled by the previously described cjbart approach.
 For this, we used the R package *cjbart* described in CITE.
 We fitted a BART model containing the profile attributes and various subject-level covariates: age, country, gender, and political orientation, and subjects' agreement on different statements regarding political statements (e.g., EXAMPLE).
-A list of all covariates, including their type, can be found in TABLE.
+A list of all covariates, including their type, can be found in @tbl-covariates.
 This resulted in a trained BART model that was used to make the (counterfactual) predictions needed for calculating the quantities of interest, such as IMCEs or AMCEs.
 
 ```{r covariates, echo=FALSE}
-#| output: asis
+#| echo: false
+#| results: asis
+#| label: tbl-covariates
+
+library(knitr)
 library(kableExtra)
 
-attrib <- data.frame(Attribute = c("Number of Ukrainian soldiers killed?",
-                                   "Number of Russian soldiers killed?",
-                                   "Number of Ukrainian civilians killed?",
-                                   "Value of destroyed infrastructure in Ukraine?",
-                                   "[Country] contribution to military aid to Ukraine?",
-                                   "[Country] contribution to economic aid to Ukraine?",
-                                   "Risk of a Russian nuclear strike on Ukraine?",
-                                   "How much political self-determination of Ukraine?",
-                                   "Territorial cessions of Ukraine to Russia?"),
-                     Attribute_Levels = c("1. 12,500 <br> 2. 25,000 <br> 3. 50,000",
-                                          "1. 25,000 <br> 2. 50,000 <br> 3. 100,000",
-                                          "1. 4,000 <br> 2. 8,000 <br> 3. 16,000",
-                                          "1. $50B <br> 2. $100B <br> 3. $200B",
-                                          "1. X bn (0.1% of [Country] GDP) <br> 2. X bn (0.2% of [Country] GDP) <br> 3. X bn (0.3% of [Country] GDP)",
-                                          "1. X bn (0.1% of [Country] GDP) <br> 2. X bn (0.2% of [Country] GDP) <br> 3. X bn (0.3% of [Country] GDP)",
-                                          "1. Not present (0%) <br> 2. Low (5%) <br> 3. Moderate (10%)",
-                                          "1. Full self-determination <br> 2. No NATO/EU membership <br> 3. Russian influence over Ukr. gov.",
-                                          "1. No cessions of territory <br> 2. Crimea (ca. 4% of land) <br> 3. 2014 Line of Conflict (ca. 8%) <br> 4. 2023 Line of Conflict (ca. 16%)"),
-                     Reference = c("12,500",
-                                   "25,000",
-                                   "4,000",
-                                   "$50B",
-                                   "0.1% of GDP",
-                                   "0.1% of GDP",
-                                   "Not present (0%)",
-                                   "Full self-determination",
-                                   "No cessions of territory"))
+covs <- data.frame(
+  Covariates = c(
+    "Country",
+    "Age",
+    "Gender",
+    "Political Orientation",
+    "The political agenda should focus <br> on the war against Ukraine.",
+    "How scared are you by the <br> Russian war against Ukraine?",
+    "Does military support of [country] matter <br> regarding your current voting intention?",
+    "The US-American imperialism is <br> the real threat to world peace.",
+    "I can see why Russia feels <br> threatened by the West.",
+    "Would you say that your general opinion <br> of the NATO is very positive, slightly positive, neither positive nor negative, slightly negative, or very negative?",
+    "Ukraine should waive a NATO <br> membership if this would bring peace.",
+    "Ukraine should not make <br> any cessions to achieve peace.",
+    "Trading or deliveries of weapons <br> between countries should be prohibited.",
+    "If a country is being attacked and <br> the aggressor is targeting civilians, <br> [country] should provide military support.",
+    "If a country is being attacked and <br> the aggressor is targeting critical <br> infrastructure (e.g., hospitals or electricity <br> and water supply), [country] should provide military support.",
+    "If a country is being attacked (without <br> actual fault) and the aggressor is taking <br> away its land, [country] should provide <br> military support."
+  ),
+  Scale_level = c(
+    "Categorical with 5 levels: <br> Germany, UK, USA, France, Italy",
+    "Continuous",
+    "Categorical with 2 levels: <br> male and female",
+    "Categorical with 3 levels: <br> left, middle, right",
+    "Categorical: 6-point Likert scale",
+    "Categorical: 7-point Likert scale <br> (<em>not scared at all</em> to <em>very scared</em>)",
+    "Categorical: 4-point Likert scale <br> (<em>matters a lot</em> to <em>does not matter at all</em>)",
+    "Categorical: 7-point Likert scale <br> (<em>do not agree at all</em> to <em>completely agree</em>)",
+    "Categorical: 7-point Likert scale <br> (<em>do not agree at all</em> to <em>completely agree</em>)",
+    "Categorical: 5-point Likert scale <br> (<em>very positive</em> to <em>very negative</em>)",
+    "Categorical with 2 levels: yes and no",
+    "Categorical with 2 levels: yes and no",
+    "Categorical: 7-point Likert scale <br> (<em>do not agree at all</em> to <em>completely agree</em>)",
+    "Categorical: 7-point Likert scale <br> (<em>do not agree at all</em> to <em>completely agree</em>)",
+    "Categorical: 7-point Likert scale <br> (<em>do not agree at all</em> to <em>completely agree</em>)",
+    "Categorical: 7-point Likert scale <br> (<em>do not agree at all</em> to <em>completely agree</em>)"
+  )
+)
 
-knitr::kable(attrib, 
+
+knitr::kable(covs, 
              format = "html", 
-             col.names = c("Attribute", "Attribute Levels", "Reference Category"), 
+             col.names = c("Covariates", "Scale Level"), 
              escape = FALSE,
-             caption = "Attributes, attribute levels, and reference categories used in the analyses.")
-
+             caption = "Covariates and corresponding scale levels used in the analyses.")
 
 ```
+
 
 In the next step, these (counterfactual) predictions were used to calculate OMCEs. 
 These were aggregated to the different individual- and attribute-specific IMCEs. 
