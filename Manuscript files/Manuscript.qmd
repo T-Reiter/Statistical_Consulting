@@ -130,11 +130,12 @@ The data were first described in CITE.
 In their work, CITE aimed at investigating which attributes citizens from five different NATO-member countries (United States [US], United Kingdom [UK], Germany, Italy, and France) deem important when deciding whether Ukraine should be supported economically and militarily against the Russian aggression.
 For this, CITE conducted a conjoint experiment where $N = 10,011$ participants from the five countries chose one of two possible profiles. 
 In these profiles, nine different attributes with varying attribute levels were manipulated randomly to indicate the consequences that a support of Ukraine would entail if the profile was chosen.
-The different attributes, their corresponding levels, and the reference categories we used for our analyses are shown in TABLE.
+The different attributes, their corresponding levels, and the reference categories we used for our analyses are shown in @tbl-attributes.
 Additionally, subject-level covariates were assessed, for example, participants' age, gender, political orientation, or their country of origin (of the five countries mentioned above).
 
 ```{r attributes, echo=FALSE}
 #| output: asis
+#| label: tbl-attributes
 library(kableExtra)
 
 attrib <- data.frame(Attribute = c("Number of Ukrainian soldiers killed?",
@@ -193,6 +194,47 @@ For this, we used the R package *cjbart* described in CITE.
 We fitted a BART model containing the profile attributes and various subject-level covariates: age, country, gender, and political orientation, and subjects' agreement on different statements regarding political statements (e.g., EXAMPLE).
 A list of all covariates, including their type, can be found in TABLE.
 This resulted in a trained BART model that was used to make the (counterfactual) predictions needed for calculating the quantities of interest, such as IMCEs or AMCEs.
+
+```{r covariates, echo=FALSE}
+#| output: asis
+library(kableExtra)
+
+attrib <- data.frame(Attribute = c("Number of Ukrainian soldiers killed?",
+                                   "Number of Russian soldiers killed?",
+                                   "Number of Ukrainian civilians killed?",
+                                   "Value of destroyed infrastructure in Ukraine?",
+                                   "[Country] contribution to military aid to Ukraine?",
+                                   "[Country] contribution to economic aid to Ukraine?",
+                                   "Risk of a Russian nuclear strike on Ukraine?",
+                                   "How much political self-determination of Ukraine?",
+                                   "Territorial cessions of Ukraine to Russia?"),
+                     Attribute_Levels = c("1. 12,500 <br> 2. 25,000 <br> 3. 50,000",
+                                          "1. 25,000 <br> 2. 50,000 <br> 3. 100,000",
+                                          "1. 4,000 <br> 2. 8,000 <br> 3. 16,000",
+                                          "1. $50B <br> 2. $100B <br> 3. $200B",
+                                          "1. X bn (0.1% of [Country] GDP) <br> 2. X bn (0.2% of [Country] GDP) <br> 3. X bn (0.3% of [Country] GDP)",
+                                          "1. X bn (0.1% of [Country] GDP) <br> 2. X bn (0.2% of [Country] GDP) <br> 3. X bn (0.3% of [Country] GDP)",
+                                          "1. Not present (0%) <br> 2. Low (5%) <br> 3. Moderate (10%)",
+                                          "1. Full self-determination <br> 2. No NATO/EU membership <br> 3. Russian influence over Ukr. gov.",
+                                          "1. No cessions of territory <br> 2. Crimea (ca. 4% of land) <br> 3. 2014 Line of Conflict (ca. 8%) <br> 4. 2023 Line of Conflict (ca. 16%)"),
+                     Reference = c("12,500",
+                                   "25,000",
+                                   "4,000",
+                                   "$50B",
+                                   "0.1% of GDP",
+                                   "0.1% of GDP",
+                                   "Not present (0%)",
+                                   "Full self-determination",
+                                   "No cessions of territory"))
+
+knitr::kable(attrib, 
+             format = "html", 
+             col.names = c("Attribute", "Attribute Levels", "Reference Category"), 
+             escape = FALSE,
+             caption = "Attributes, attribute levels, and reference categories used in the analyses.")
+
+
+```
 
 In the next step, these (counterfactual) predictions were used to calculate OMCEs. 
 These were aggregated to the different individual- and attribute-specific IMCEs. 
