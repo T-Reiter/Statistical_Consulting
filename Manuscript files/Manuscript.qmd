@@ -277,11 +277,13 @@ In @fig-amces we present the AMCEs estimated by averaging the IMCEs calculated u
 
 ![AMCEs](figures/AMCEs.png){#fig-amces}
 
-@fig-varimps-ext displays the variable importance measures for the subject-level covariates as extracted from the cjbart model. Variable Importances are colorized using heatmap-like colorcoding with stronger red (vs. white) color indicating larger importance measures. 
+@fig-varimps-ext displays the variable importance measures for the subject-level covariates as extracted from the cjbart model. 
+Variable Importances are colorized using heatmap-like colorcoding with stronger red (vs. white) color indicating larger importance measures. 
 
 ![Ext VarImps](figures/RF_VarImps_ext_v2.png){#fig-varimps-ext}
 
-@fig-imagepanel depicts 4 exemplary decision trees that were fitted to better understand how different subject level covariates contribute to effect heterogeneity. These decision trees were selected based on content-related and interpretational criteria and to highlight how single decision tress can be utilized for model interpretation.  
+@fig-imagepanel depicts 4 exemplary decision trees that were fitted to better understand how different subject level covariates contribute to effect heterogeneity. 
+These decision trees were selected based on content-related and interpretational criteria and to highlight how single decision tress can be utilized for model interpretation.  
 
 ```{r image-panel, echo=FALSE, fig.align='center'}
 #| fig-cap: "Exemplary deicision trees for predicting IMCEs based on Covariates."
@@ -353,13 +355,13 @@ grid <- grid.arrange(
 
 For AMCEs, theoretically most favorable events served as baseline. 
 As can be seen, increased attribute levels (i.e., less favourable events) were usually linked to significantly decreased levels of support. 
-For example, increasing the risk of a nuclear strike from the reference level 'Not present (0%)' to 'Moderate (10%)' decreased the average probability of a participant choosing the latter profile by about -8.5%. 
+For example, increasing the risk of a nuclear strike from the reference level 'Not present (0%)' to 'Moderate (10%)' decreased the average probability of a participant choosing the latter profile by about 8.5 percentage points. 
 The AMCE point estimates were in line with the AMCEs reported in CITE, which is why we refrain from an in-depth discussion here and refer the interested reader to CITE.
 HIER WAS DAZU SCHREIBEN DAS WIR HÖHERE SEs HABEN? DAZU SCHREIBEN DIE HALT IN IHREM PAPER EH GAR NIX 
 
 As a next step, we predicted the subject-level IMCEs using the subject-level covariates. 
 Based on this random forest model, we then calculated variable importance measures which served as indicators for variables associated with effect heterogeneity. 
-We found the highest variable importance values for the subject-level covariates Country, Geneder, and the items asking participants about whether they generally support supply of weapons to countries defending themselves against other country's invasions (Q10_10) and whether the Ukraine should make any concessions in order to achieve peace (Q15_7). 
+We found the highest variable importance values for the subject-level covariates country, gender, and the items asking participants about whether they generally support supply of weapons to countries defending themselves against other country's invasions (Q10_10) and whether Ukraine should make any concessions in order to achieve peace (Q15_7). 
 
 These variable importance measures do not provide any more interpretability than which covariates in general seem to matter, which is why we further substantiated the previous analysis by fitting single decision trees to different IMCEs. 
 IMCEs for this were selected due to content-related purposes and to highlight how decision trees facilitate interpretation of effect heterogeneity. 
@@ -369,13 +371,13 @@ In general, we saw the UK vs other countries split in many different trees possi
 Moreover, whether participants were female (within both UK and Non-UK subgroups) predicted 
 
 Apart from this, participants' attitude about whether the Ukraine should make any concessions to Russia if this would lead to a peace agreement predicted some level of effect heterogeneity to an interesting extent. 
-For example. with regards to Russian soldiers killed, people that selected that the Ukraine should not make any concessions, on average were more likely to select profiles with a larger number of Russian military casualties (100,000 vs. 25,000). 
+For example, with regard to Russian soldiers killed, people who responded that Ukraine should not make any concessions, on average were more likely to select profiles with a larger number of Russian military casualties (100,000 vs. 25,000). 
 Interestingly, out of the investigated IMCE decision trees this was the only case for which we observed splits resulting in nodes with different signs meaning that the probability of profile selection decreased in one child node and increased in the other. 
-These results have however, to be interpreted with caution as the split cannot be interpreted as a sign of significant differences. 
-As for this result, though having different signs, the differences in probability are still small (less than 2%) and close to zero. 
+These results have, however, to be interpreted with caution as the split cannot be interpreted as a sign of statistically significant differences. 
+As for this result, though having different signs, the differences in probability are still small (less than 2 percentage points) and close to zero. 
 Lastly, for the attribute of how much cession of Ukrainian territory a selected profile would result in, we once again found the general attitude towards Ukrainian concessions to predict effect heterogeneity. 
-People that selected, that Ukraine should make no concessions, were 16% less likely to select profiles with the 'comparably moderate negative outcome' of Ukraine loosing 8% of their territory (resembling the 2014 Line of Conflict) (vs. reference level 'None (0%)'). 
-For people that did not select the no concessions option, profile selection probabilities for the same attribute level decreased by only 2.4%. 
+People who responded that Ukraine should make no concessions were 16 percentage points less likely to select profiles with the 'comparably moderate negative outcome' of Ukraine loosing 8% of their territory (resembling the 2014 Line of Conflict) (vs. reference level 'None (0%)'). 
+For people that did not select the no concessions option, profile selection probabilities for the same attribute level decreased by only 2.4 percentage points. 
 
 <!-- -Vergleich mit factorHet eher raus -->
 <!-- - short description of factor het results  -->
@@ -394,9 +396,52 @@ As in the present case, the goal was to understand how different subject-level c
 
 -Vergleich mit “normaler” Subgruppen Analyse --> aka vergleich mit deren paper 
 
+
 ## Methodological Discussion
 
-Discussion & Limitations -Tuning -Wie viele Covariates (inference vs. exploration) -Stabilität
+The methodological advantages of cjbart over existing methods to estimate AMCEs and conduct subgroup analyses have been discussed above.
+To briefly recap, cjbart can estimate complex relations regarding attribute level importances, thereby taking potential effect heterogeneity into account.
+Using tree-based follow up analyses, variable importance measures (i.e., which covariates matter for which attribute level) can be calculated.
+Additionally, users can calculate IMCE differences predicted by person-level covariates to investigate heterogeneity in an exploratory manner.
+In closing, we now discuss some important methodological points and potential limitations that should be kept in mind when applying cjbart to conjoint designs.
+
+First, cjbart is, like all tree-based methods, a rather exploratory method.
+This allows for a data-driven investigation of effect heterogeneity without a priori specification of subgroups (when combined with follow-up analyses).
+However, it also impedes a confirmatory approach to answering hypotheses about underlying theories.
+For the follow-up analyses using single decision trees, any reasoning from effects of covariates on IMCEs (e.g., people who oppose concessions for peace agreement favor larger territory cessions less) must be done with caution.
+That is, they cannot readily be interpreted as directed nor as a causal effect of covariates on IMCEs.
+The "naive" approach of investigating attribute levels that stand out in the variable importance heatmap (like we did above), is useful for *hypothesis generation*.
+Effects that were found and that seem to align with political theory could now be investigated in more detail.
+Using appropriate study designs (e.g., experimental settings) or modeling strategies (e.g., confounder adjustment) would now be necessary to investigate the direction of effects and to approach the hypotheses in a more causal manner.
+
+Second, and closely related, while the decision trees offer an easy interpretation of subgroup differences, they do not provide information on whether these differences are statistically significant.
+This is because decision trees as implemented by CITE and also in our article base their split decision on a maximal reduction of *impurity*.
+That is, the goal of decision trees is to partition the data so that observations in the resulting nodes are as homogeneous as possible (in the sense of reduced variance in nodes).
+These splitting decisions are, however, not based on statistical inference.
+Consequently, any two given terminal nodes that show differences (in IMCEs, in our case) do not necessarily show statistically significant differences.
+Domain expertise when interpreting the results is needed to reason about whether the differences are practically meaningful.
+For example, for the result of changed signs in IMCEs reported above, it is a theoretical and content related question whether the difference of around 2 percentage points is relevant.
+A possible extension would be to use a different decision tree algorithm, for example conditional inference trees CITE.
+These types of trees base their split decisions on non-parametric hypotheses tests.
+Nonetheless, domain expertise would still be needed to assess whether a statistically significant split is substantially meaningful.
+
+Third, more simulated and empirical research on cjbart is needed to properly assess the stability of its solutions.
+Internally, the *cjbart()* function as implemented by CITE calls the *mc-pbart()* function from the *BART* package CITE.
+This function estimates complex relations using the BART model described above and uses a seed (which defaults to 99).
+Thus, when repeatedly used on the same data, users should always receive the same results (of AMCEs).
+Simulation studies should be conducted to assess the variability in results when seeds are changed.
+Additional variance in results is then introduced when using random forests to assess variable importances.
+This step should be included in these simulations to investigate whether, and if yes, how strongly changes in BART results are perpetuated in the variable importance results.
+Other factors that might influence cjbarts results are the specific settings of hyperparameters.
+Hyperparameters are second-order parameters that cannot be estimated by the data but that have to be set prior to estimating the model.
+Examples of hyperparameters of the cjbart model are the number of individual trees that are grown sequentially and the number of cut points that are investigated (i.e., the number of "segments" of, for example, age for which a split is considered).
+In our analyses, we used the default values of these hyperparameters (50 trees and 100 cut points).
+However, it would also be possible to tune these values, that is, to try out different settings and choose the most optimal values (with respect to some evaluation metric).
+Because tuning hyperparameters can be computationally expensive, it is an interesting topic of future methodological research to assess whether tuning in the case of cjbart is worth the additional computational burden.
+Tuning hyperparameters would also be possible for the random forest when calculating variable importances.
+However, random forests have been shown to have good performance with default values of its hyperparameters (CITE), so we believe the focus should be on the hyperparameters of the upstream BART model.
+
+HIER NOCH EIN PAAR SÄTZE ZU ANDEREN BEIDEN METHODEN; VORTEILE; NACHTEILE; WARUM BEI UNS CJBART
 
 -weitere Modelle: 
 -factorHet + idee kurz 
