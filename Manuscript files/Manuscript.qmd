@@ -441,12 +441,26 @@ Because tuning hyperparameters can be computationally expensive, it is an intere
 Tuning hyperparameters would also be possible for the random forest when calculating variable importances.
 However, random forests have been shown to have good performance with default values of its hyperparameters (CITE), so we believe the focus should be on the hyperparameters of the upstream BART model.
 
-HIER NOCH EIN PAAR SÄTZE ZU ANDEREN BEIDEN METHODEN; VORTEILE; NACHTEILE; WARUM BEI UNS CJBART
+Forth and last, cjbart is not the only method to take potential heterogeneity in attribute level effects into account.
+As mentioned in the introduction, two other methods are FactorHet by CITE and the CRT approach by CITE.
+FactorHet works based on a Bayesian mixture of regularized logistic regression analyses.
+The goal is to identify maximally heterogeneous groups of respondents for which similar patterns of attribute level effects apply.
+The membership probability to belong to a certain group, also called cluster, is modeled as a function of the person-level covariates.
+This allows users to investigate person characteristics (like country of origin or age) that are indicative of belonging to certain patterns of attribute level effects.
+While this yields interpretable results with regard to the question of "what matters to whom", it has the important downside that the number of clusters is a hyperparameter that has to be set prior to estimating the model.
+Thus, the question arises which model to select.
+It might be a good strategy to estimate the model with different numbers of clusters and then use domain expertise and interpretability
+to choose a solution.
+However, this should be made with caution to not let post-hoc explanation guide the decision.
+Future research concering FactorHet could develop model selection strategies, like information criteria, that are comparable across solutions with differing numbers of clusters and allow for a statistical decision.
+The other method, CRT by CITE, is a statistical hypothesis testing approach based on conditional randomization tests.
+The goal of this approach is to assess a specific attribute of interest influences participants' choice behavior in any way, given all the other attributes.
+The advantage of CRT is that this answers the most basic question one can ask in conjoint experiments, while being assumption-free.
+This is due to the fact that the underlying testing approach works solely on the randomization of attributes.
+However, in these analyses, it remains challenging to investigate the influence of person-level covariates on individual-level preferences (i.e., IMCEs).
+Taken together, all novel approaches have their own strengths and weaknesses when trying to unravel heterogeneity in attribute level effects.
+As in every statistical analyses, the choice of methods and models crucially depends on the research question and desired inferences one wants to make.
+Because our goal was to complement the existing analyses reported by CITE with a maximally exploratory approach, potentially informing future more confirmatory research, we found that cjbart best fits this purpose.
 
--weitere Modelle: 
--factorHet + idee kurz 
--CRT + idee kurz 
-Warum cjBart  
-das Modell stark machen
 
 # Conclusion
