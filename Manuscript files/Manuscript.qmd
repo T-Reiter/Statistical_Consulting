@@ -28,6 +28,7 @@ By randomly mixing the attribute levels and "forcing" participants to choose one
 Arguably the most commonly estimated causal quantity in conjoint analyses is the *average marginal component effect* (AMCE).
 The AMCE is the effect of a specific attribute level of interest compared to another level of the same attribute, holding equal the joint distribution of all other attributes and averaged over this joint distribution as well as the sampling distribution from the population CITE.
 This quantity is estimable by regression models and provides us an effect of an attribute on the probability that a certain option (or profile) will be chosen.
+<!-- TR: compared to the probability of a baseline attribute level -->
 As the name AMCE suggests, this estimate is an average.
 That is, potential differences in effects among participants cannot be considered directly.
 However, this *effect heterogeneity* is often of interest, when trying to determine whether an attribute is equally important to all participants regardless of background covariates (e.g., age, gender, education, etc.) or whether there are subgroup differences.
@@ -36,9 +37,13 @@ Ultimately, it is a question of generalization of results to the entire populati
 The simplest approach to take into account potential effect heterogeneity in conjoint analyses is to estimate the AMCE-models in different subgroups, for example a model for all male and female participants.
 Although appealing due to its simplicity, this approach quickly reaches its limits and has additional downsides.
 First, it is not clear how to a priori define the subgroups let alone how and where to include certain interactions.
+<!-- often lack of theory, risk of multiple testing issue -->
 If a continuous covariate age is included in the data, arbitrary splits into distinct groups are necessary.
 Potential interaction effects would have to be included manually with the likely chance to miss important ones.
+<!-- TR: with this issue increasing exponentially if subgroups are to be defined based on multiple covariates -->
 Needless to say, sample sizes in the subgroups are always smaller than in the whole sample as well, increasing the uncertainty in estimations.
+<!-- Vielleicht diesen allgemeinen high-dim part weiter nach oben zu den attribut levels? -->
+<!-- dann kann man das Fass mit der double high dimensionality hier aufmachen so nach dem Motto, dass die noch kleineren Subgruppen hier das Problem noch schlimmer machen? -->
 This leads to a second issue: conjoint data can quickly become high-dimensional due to many different pairings of different attribute levels (across attributes).
 Consequently, there are more combinations of attribute levels (and thus, possible options) that should be presented to participants than there are actual rounds of choosing per participant.
 This leads to some kind of "double high-dimensionality issue": there are many different attribute (level) combinations *and* many potential covariates characterizing the participants.
@@ -61,7 +66,7 @@ Let us consider *N* individuals choosing between *J* profiles across *K* rounds 
 In each round, an individual *i* is presented with *J* profiles in which the attribute levels of *L* attributes are assigned randomly.
 In the final data set, there are $N \times J \times K$ rows and $L + X$ columns (with *X* being the covariates characterizing the individuals).
 From these data we now want to estimate the causal parameters of interest, that is, AMCE, IMCE, RMCE, and OMCE.
-Nested in the AMCE described above, the IMCE is the change in probability that subject *i* choses a profile given a specific attribute level (compared to a reference level of the same attribute), again averaged over the effects of all other attributes.
+Nested in the AMCE described above, the IMCE is the change in probability that subject *i* chooses a profile given a specific attribute level (compared to a reference level of the same attribute), again averaged over the effects of all other attributes.
 This corresponds to subgroup analyses of the AMCE with the convenient addition that the IMCE considers conditional effects based on all possible individual-level covariates.
 By inspecting the IMCE, effect heterogeneity due to non-randomized characteristics (i.e., the covariates) can be identified.
 The IMCE further contains the two lower-level quantities RMCE and OMCE.
@@ -79,8 +84,10 @@ CITE propose a three-step estimation procedure.
 In a first step, potential effect heterogeneity is modeled.
 Specifically, some function is estimated that relates the attribute levels of the *L* attributes that were shown to subject *i* in the $k^{th}$ round in profile *j* and the covariate vector $X_i$ to the observed binary outcome $Y_{ijk}$ (which is equal to 1 if the profile was chosen and equal to 0 if it was not chosen).
 CITE detail this estimation procedure using Bayesian additive regression trees (BART) but other appropriate models that can estimate this potentially complex functional relationship could be used as well.
-BART is a supervised learning model based on a boosting procedure: many small decision trees are trained subsequently, each one aiming to explain the residual variance of the outcome variable which was not explained by all previous trees.
-The "Bayesian part" in BART is that parameters are seen as random variables (instead of constants, as would be the case in frequentist approaches).
+<!-- habe hier noch ein bisschen was dazu geschrieben  -->
+BART is a supervised learning model somewhat similar to a boosting procedure: across multiple iterations B, K small decision trees are trained subsequently, each one aiming to explain the residual variance of the outcome variable which was not explained by the K-1 previously grown trees. Moreover, the trees in subsequent iterations are not 'freshly grown' to fit the residuals but instead are grown by randomly perturbing the very same tree of the previous iteration.
+The "Bayesian part" in BART is that parameters are seen as random variables (instead of constants, as would be the case in frequentist approaches). Moreover, priors are placed on growing the trees to favor shallow trees and leaf values close to zero.
+<!-- auch noch was zu MCMC?  -->
 An advantage of BART is its robustness to the choice of hyperparameters (e.g., the number of individual trees) but they could be tuned if necessary, for example by cross-validation.
 The data that is used to train the BART are the data resulting from the conjoint experiment; that is, the different choices of profiles as well as the covariates, which are invariant at the individual-level.
 
@@ -116,7 +123,7 @@ This results in a comprehensive VIMP-heatmap, which we show as an example in the
 
 ### Tool 2: Single Decision Tree Partitioning
 
-By combining many weak decision trees, random forest have the advantage of increased predictive performance.
+By combining many weak decision trees, random forests have the advantage of increased predictive performance.
 However, this advantage comes at the cost of interpretability.
 Each tree only considers a random subset of predictor variables (in our case: subject-level covariates) and is trained on a bootstrap sample.
 Thus, CITE suggest a complementary analysis with single decision trees which are grown for a specific attribute level.
