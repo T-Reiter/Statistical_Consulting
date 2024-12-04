@@ -163,8 +163,8 @@ attrib <- data.frame(Attribute = c("Number of Ukrainian soldiers killed?",
                                    "[Country] contribution to military aid to Ukraine?",
                                    "[Country] contribution to economic aid to Ukraine?",
                                    "Risk of a Russian nuclear strike on Ukraine?",
-                                   "How much political self-determination of Ukraine?",
-                                   "Territorial cessions of Ukraine to Russia?"),
+                                   "Territorial cessions of Ukraine to Russia?",
+                                   "How much political self-determination of Ukraine?"),
                      Attribute_Levels = c("1. 12,500 <br> 2. 25,000 <br> 3. 50,000",
                                           "1. 25,000 <br> 2. 50,000 <br> 3. 100,000",
                                           "1. 4,000 <br> 2. 8,000 <br> 3. 16,000",
@@ -172,8 +172,8 @@ attrib <- data.frame(Attribute = c("Number of Ukrainian soldiers killed?",
                                           "1. X bn (0.1% of [Country] GDP) <br> 2. X bn (0.2% of [Country] GDP) <br> 3. X bn (0.3% of [Country] GDP)",
                                           "1. X bn (0.1% of [Country] GDP) <br> 2. X bn (0.2% of [Country] GDP) <br> 3. X bn (0.3% of [Country] GDP)",
                                           "1. Not present (0%) <br> 2. Low (5%) <br> 3. Moderate (10%)",
-                                          "1. Full self-determination <br> 2. No NATO/EU membership <br> 3. Russian influence over Ukr. gov.",
-                                          "1. No cessions of territory <br> 2. Crimea (ca. 4% of land) <br> 3. 2014 Line of Conflict (ca. 8%) <br> 4. 2023 Line of Conflict (ca. 16%)"),
+                                          "1. No cessions of territory <br> 2. Crimea (ca. 4% of land) <br> 3. 2014 Line of Conflict (ca. 8%) <br> 4. 2023 Line of Conflict (ca. 16%)",
+                                          "1. Full self-determination <br> 2. No NATO/EU membership <br> 3. Russian influence over Ukr. gov."),
                      Reference = c("12,500",
                                    "25,000",
                                    "4,000",
@@ -181,8 +181,8 @@ attrib <- data.frame(Attribute = c("Number of Ukrainian soldiers killed?",
                                    "0.1% of GDP",
                                    "0.1% of GDP",
                                    "Not present (0%)",
-                                   "Full self-determination",
-                                   "No cessions of territory"))
+                                   "No cessions of territory",
+                                   "Full self-determination"))
 
 knitr::kable(attrib, 
              format = "html", 
@@ -287,17 +287,25 @@ In the next section, we present the results of these analyses, followed by a dis
 
 In @fig-amces we present the AMCEs estimated by averaging the IMCEs calculated using the cjbart model. 
 
-![AMCEs](figures/AMCEs.png){#fig-amces}
+![AMCEs](figures/AMCEs_as_cjbart.png){#fig-amces}
 
 These AMCEs are supplemented with the AMCEs reported in the original preprint by CITE, presented in @fig-amces-preprint.
 
 ![Preprint AMCEs](figures/AMCEs_Original_Preprint.png){#fig-amces-preprint}
 
+<!-- Aproach to get the 2 figures on the same page...  -->
+<!-- ::: {.figure} -->
+<!--   ![AMCEs](figures/AMCEs_as_cjbart.png){#fig-amces width="100%"} -->
+
+<!--   ![Preprint AMCEs](figures/AMCEs_Original_Preprint.png){#fig-amces-preprint width="100%"} -->
+
+<!-- ::: -->
+
 
 @fig-varimps-ext displays the variable importance measures for the subject-level covariates as extracted from the cjbart model. 
 Variable Importances are colorized using heatmap-like colorcoding with stronger red (vs. white) color indicating larger importance measures. 
 
-![Ext VarImps](figures/RF_VarImps_ext_v2.png){#fig-varimps-ext}
+![Ext VarImps](figures/RF_VarImps_ext_v3.png){#fig-varimps-ext}
 
 @fig-imagepanel depicts 4 exemplary decision trees that were fitted to better understand how different subject level covariates contribute to effect heterogeneity. 
 These decision trees were selected based on content-related and interpretational criteria and to highlight how single decision tress can be utilized for model interpretation.  

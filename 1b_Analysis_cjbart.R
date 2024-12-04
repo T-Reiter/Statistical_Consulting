@@ -78,7 +78,7 @@ vars_red = c(
 vars_ext = c(
   # General variables
   'y', 'c_id', 
-  # 'task',
+  'task',
   # Attributes
   "Sold_killed_UKR", "Sold_killed_RUS", "Civ_killed_UKR",
   "Infra_Destr_UKR", "Perc_GDP_milit", "Perc_GDP_econ",
@@ -112,17 +112,19 @@ fit_cjbart_red <- readRDS("1c_Model_Objects/2024-11-18_fit_cjbart_red.rds")
 
 ### Fit the extended model
 set.seed(123)
-fit_cjbart_ext6_noround = cjbart(data = cj_tidy[, vars_ext], 
+fit_cjbart_ext = cjbart(data = cj_tidy[, vars_ext], 
                         Y = "y",
                         # type = "choice", 
                         id = "c_id", 
-                        # round = "task", 
-                        # use_round = TRUE, 
+                        round = "task", 
+                        use_round = TRUE, 
                         seed = 99,
                         cores = 4)
 
-saveRDS(fit_cjbart_ext6_noround, "1c_Model_Objects/2024-11-18_fit_cjbart_ext6_noround.rds")
+# saveRDS(fit_cjbart_ext6_noround, "1c_Model_Objects/2024-11-18_fit_cjbart_ext6_noround.rds")
 fit_cjbart_ext <- readRDS("1c_Model_Objects/2024-11-18_fit_cjbart_ext.rds")
+
+
 
 
 #####' *Get IMCEs*
@@ -186,9 +188,176 @@ imces_ext <- IMCE(data = cj_tidy[, vars_ext],
                   # ,method = 'parametric'
                   , cores = 4
 )
+summary.cjbart(imces_ext)
 
 # saveRDS(imces_ext, "1c_Model_Objects/2024-11-18_imces_ext_2.rds")
 imces_ext <- readRDS("1c_Model_Objects/2024-11-18_imces_ext.rds")
+
+
+
+
+# Get AMCEs
+amces_ext <- AMCE(cj_tidy[, vars_ext], 
+              model = fit_cjbart_ext,
+              attribs = c("Sold_killed_UKR"
+                          , "Sold_killed_RUS"
+                          , "Civ_killed_UKR"
+                          , "Infra_Destr_UKR"
+                          , "Perc_GDP_milit"
+                          , "Perc_GDP_econ"
+                          , "Risk_Nuke"
+                          , "Territ_Cession"
+                          , "Polit_Self_Det_UKR"
+              ), 
+              ref_levels = c('12,500'
+                             , '25,000.'
+                             , '4,000'
+                             , '50B'
+                             , '0.1% of GDP'
+                             , '0.1% of GDP.'
+                             , 'Not present (0%)'
+                             , 'None'
+                             , 'Full'
+              ), 
+              alpha = 0.05,
+              cores = 4)
+
+# saveRDS(amces_ext, "1c_Model_Objects/2024-11-18_amces_ext.rds")
+amces_ext <- readRDS("1c_Model_Objects/2024-11-18_amces_ext.rds")
+
+
+###' *Plot AMCEs* 
+# Extract data frames from the results
+amces_ext <- readRDS("1c_Model_Objects/2024-11-18_amces_ext.rds")
+
+plot_data <- data.frame(amces_ext$amces$attribute,
+                        amces_ext$amces$level,
+                        amces_ext$amces$AMCE,
+                        amces_ext$amces$AMCE_lower,
+                        amces_ext$amces$AMCE_upper)
+colnames(plot_data) <- c('Attribute', 'Level', 'AMCE', 'Lower', 'Upper')
+
+# Create a combined label for Y-axis
+plot_data <- plot_data %>%
+  mutate(AttributeLevel = paste(Attribute, Level, sep = " - "))
+
+
+# Define baseline levels with IMCE = 0
+baseline_levels <- data.frame(
+  Attribute = c("Sold_killed_UKR", "Sold_killed_RUS", "Civ_killed_UKR",
+                "Infra_Destr_UKR", "Perc_GDP_milit", "Perc_GDP_econ",
+                "Risk_Nuke", "Territ_Cession", "Polit_Self_Det_UKR"),
+  Level = c('12,500', '25,000.', '4,000', '50B', '0.1% of GDP', '0.1% of GDP.',
+            'Not present (0%)', 'None', 'Full'),
+  AMCE = 0,
+  Lower = 0,
+  Upper = 0
+)
+
+# Add baseline levels to the plot_data
+plot_data <- plot_data %>%
+  bind_rows(baseline_levels)
+
+
+# Create the desired order data frame
+desired_orders_df <- data.frame(
+  Attribute = c(rep("Sold_killed_UKR", 3),
+                rep("Sold_killed_RUS", 3),
+                rep("Civ_killed_UKR", 3),
+                rep("Infra_Destr_UKR", 3),
+                rep("Perc_GDP_milit", 3),
+                rep("Perc_GDP_econ", 3),
+                rep("Risk_Nuke", 3),
+                rep("Territ_Cession", 4),
+                rep("Polit_Self_Det_UKR", 3)),
+  Level = c('12,500', "25,000", "50,000", 
+            '25,000.', "50,000.", "100,000", 
+            '4,000', "8,000", "16,000", 
+            '50B', "100B", "200B",
+            '0.1% of GDP', "0.2% of GDP", "0.3% of GDP", 
+            '0.1% of GDP.', "0.2% of GDP.", "0.3% of GDP.", 
+            'Not present (0%)', "Low (5%)", "Moderate (10%)", 
+            'None', "Crimea (4%)", "2014 LoC (8%)", "2023 LoC (16%)",
+            'Full', "No EU/NATO", "Russian influence"),
+  global_order = 1:28,
+  attribute_order = c(rep(1,3), rep(2,3), rep(3,3), rep(4,3), rep(5,3), 
+                      rep(6,3), rep(7,3), rep(8,4), rep(9,3)),
+  level_order = c(1:3, 1:3, 1:3, 1:3, 1:3, 1:3, 1:3, 1:4, 1:3)
+)
+
+# Merge desired order into plot_data
+plot_data <- plot_data %>%
+  left_join(desired_orders_df, by = c("Attribute", "Level"))
+
+# plot_data <- plot_data[order(plot_data$global_order), ]
+plot_data
+
+
+# Update the AttributeLevel for the baselines
+# plot_data <- plot_data %>%
+#   mutate(AttributeLevel = paste(Attribute, Level, sep = " - "))
+
+# Reorder AttributeLevel factor based on updated global_order
+# plot_data$AttributeLevel <- factor(plot_data$AttributeLevel, levels = plot_data$AttributeLevel[order(-plot_data$global_order)])
+# plot_data <- plot_data[order(plot_data$global_order), ]
+
+# plot_data_legacy <- plot_data
+# plot_data <- plot_data_legacy
+
+# order the attributes 
+plot_data$Attribute = factor(plot_data$Attribute, levels = unique(plot_data$Attribute[order(plot_data$attribute_order)]))
+
+
+custom_labels <- c(
+  "Sold_killed_UKR" = "Ukrainian military casualties",
+  "Sold_killed_RUS" = "Russian military casualties",
+  "Civ_killed_UKR" = "Ukrainian civilian casualties",
+  "Infra_Destr_UKR" = "Ukrainian infrastructure loss",
+  "Perc_GDP_milit" = "Military Aid (% GDP)",
+  "Perc_GDP_econ" = "Economic Aid (% GDP)",
+  "Risk_Nuke" = "Nuclear Strike Risk",
+  "Territ_Cession" = "Territorial Concessions",
+  "Polit_Self_Det_UKR" = "Sovereignity"
+)
+
+plot_data$Level <- factor(plot_data$Level, levels = rev(plot_data$Level[order(plot_data$global_order)]))
+
+
+# Plot with baselines included
+ggplot(plot_data, aes(x = AMCE, 
+                      y = Level,
+                      color = Attribute)) +
+  geom_vline(xintercept = 0) +
+  # facet_col(.~Attribute) + 
+  geom_point() +
+  geom_errorbarh(aes(xmin = Lower, xmax = Upper), height = 0.2) +
+  labs(
+    x = "AMCE Estimate",
+    y = "",
+    title = "AMCE Estimates with 95% CIs") +
+  theme_minimal() +
+  guides(color = "none") +
+  theme(
+    axis.text.y = element_text(size = 9),
+    axis.title.y = element_text(size = 12),
+    axis.title.x = element_text(size = 12),
+    plot.title = element_text(size = 14, face = "bold"),
+    strip.placement = "outside",
+    strip.background = element_rect(fill = "grey90", color = NA),
+    strip.text = element_text(face = "bold",
+                              size = rel(0.75), hjust = 0),
+    panel.background = element_rect(fill = "white")) +
+  ggforce::facet_col(facets = "Attribute", 
+                     scales = "free_y", 
+                     space = "free", 
+                     strip.position = c('top'),
+                     labeller = labeller(Attribute = custom_labels))
+
+ggsave('Manuscript files/figures/AMCEs_as_cjbart.png', width = 12, height = 8)
+
+
+
+
 
 
 
@@ -300,7 +469,7 @@ plot_data
 # plot_data <- plot_data[order(plot_data$global_order), ]
 
 # plot_data_legacy <- plot_data
-plot_data <- plot_data_legacy
+# plot_data <- plot_data_legacy
 
 # order the attributes 
 plot_data$Attribute = factor(plot_data$Attribute, levels = unique(plot_data$Attribute[order(plot_data$attribute_order)]))
@@ -462,33 +631,44 @@ plot_data[which(plot_data$covar == 'Q15_7'), 'covar'] <- "for Peace 01:\nNo Conc
 
 
 desired_orders_df <- data.frame(
-  Attribute = c(rep("Civ_killed_UKR", 2),
-                rep("Infra_Destr_UKR", 2),
-                rep("Perc_GDP_econ", 2),
-                rep("Perc_GDP_milit", 2),
-                rep("Polit_Self_Det_UKR", 2),
-                rep("Risk_Nuke", 2),
+  Attribute = c(rep("Sold_killed_UKR", 2),
                 rep("Sold_killed_RUS", 2),
-                rep("Sold_killed_UKR", 2),
-                rep("Territ_Cession", 3)),
-  Level = c("16,000", "8,000",
-            "200B", "100B",
-            "0.3% of GDP", "0.2% of GDP.",
-            "0.3% of GDP", "0.2% of GDP",
-            "Russian influence", "NO EU/Nato",
-            "Moderate (10%)", "Low (5%)",
+                rep("Civ_killed_UKR", 2),
+                rep("Infra_Destr_UKR", 2),
+                rep("Perc_GDP_milit", 2),
+                rep("Perc_GDP_econ", 2),
+                rep("Risk_Nuke", 2),
+                rep("Territ_Cession", 3),
+                rep("Polit_Self_Det_UKR", 2)
+                ),
+  Level = c("50,000", "25,000.",
             "100,000", "50,000.",
-            "25,000", "12,500.",
-            "2023 LoC (16%)", "2014 LoC (8%)", "Crimea (4%)"),
-  order = c(1,2,
-            1,2,
-            1,2,
-            1,2,
-            1,2,
-            1,2,
-            1,2,
-            1,2,
-            1,2,3)
+            "16,000", "8,000",
+            "200B", "100B",
+            "0.3% of GDP", "0.2% of GDP",
+            "0.3% of GDP.", "0.2% of GDP.",
+            "Moderate (10%)", "Low (5%)",
+            "2023 LoC (16%)", "2014 LoC (8%)", "Crimea (4%)",
+            "Russian influence", "NO EU/Nato"
+            ),
+  order_attributes = c(1,1,
+                       2,2,
+                       3,3,
+                       4,4,
+                       5,5,
+                       6,6,
+                       7,7,
+                       8,8,8,
+                       9,9),
+  order_levels = c(1,2,
+                   1,2,
+                   1,2,
+                   1,2,
+                   1,2,
+                   1,2,
+                   1,2,
+                   1,2,3,
+                   1,2)
 )
 
 
@@ -512,10 +692,15 @@ plot_data <- merge(plot_data,
                    by = c("Attribute", "Level"), 
                    all.x = TRUE)
 
+# Reorder levels within each Attribute
 plot_data <- plot_data %>%
-  mutate(Level_ordered = reorder_within(Level, -order, Attribute))
-plot_data <- plot_data %>%
-  mutate(covar = factor(covar, levels = desired_covar_order))
+  mutate(
+    Level_ordered = factor(Level, levels = unique(Level[order(order_levels)])), # order by 'order_levels'
+    Attribute = factor(Attribute, levels = unique(Attribute[order(order_attributes)])), # order by order_attributes
+    covar = factor(covar, levels = desired_covar_order)
+  )
+
+
 
 
 # Plot 
@@ -550,7 +735,7 @@ ggplot(plot_data,
 
 
 # ggsave('1d_Plots/RF_VarImps_red.png')
-# ggsave('Manuscript files/figures/RF_VarImps_ext_v2.png')
+ggsave('Manuscript files/figures/RF_VarImps_ext_v3.png')
 
 
 
