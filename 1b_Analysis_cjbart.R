@@ -95,13 +95,16 @@ vars_ext = c(
 #####' *Fit the models*
 ### Fit the reduced model
 set.seed(13.9238239)
+
+# function has default seed 99 implented 
 fit_cjbart_red = cjbart(data = cj_tidy[, vars_red], 
                         Y = "y",
                         type = "choice", 
                         id = "c_id", 
                         round = "task", 
                         use_round = TRUE, 
-                        cores = 4)
+                        cores = 4,
+                        seed = 99)
 
 # saveRDS(fit_cjbart_red, "1c_Model_Objects/2024-11-18_fit_cjbart_red_2.rds")
 fit_cjbart_red <- readRDS("1c_Model_Objects/2024-11-18_fit_cjbart_red.rds")
@@ -115,6 +118,7 @@ fit_cjbart_ext6_noround = cjbart(data = cj_tidy[, vars_ext],
                         id = "c_id", 
                         # round = "task", 
                         # use_round = TRUE, 
+                        seed = 99,
                         cores = 4)
 
 saveRDS(fit_cjbart_ext6_noround, "1c_Model_Objects/2024-11-18_fit_cjbart_ext6_noround.rds")
