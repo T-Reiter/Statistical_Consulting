@@ -329,23 +329,28 @@ ggplot(plot_data, aes(x = AMCE,
                       color = Attribute)) +
   geom_vline(xintercept = 0) +
   # facet_col(.~Attribute) + 
-  geom_point() +
-  geom_errorbarh(aes(xmin = Lower, xmax = Upper), height = 0.2) +
+  geom_point(size = 2) +
+  geom_errorbarh(aes(xmin = Lower, xmax = Upper), 
+                 height = 0.5, 
+                 linewidth = 0.85) +
   labs(
     x = "AMCE Estimate",
     y = "",
-    title = "AMCE Estimates with 95% CIs") +
+    title = "") +
   theme_minimal() +
   guides(color = "none") +
   theme(
-    axis.text.y = element_text(size = 9),
-    axis.title.y = element_text(size = 12),
-    axis.title.x = element_text(size = 12),
-    plot.title = element_text(size = 14, face = "bold"),
+    axis.text.y = element_text(size = 14.5),
+    axis.text.x = element_text(size = 15),
+    # axis.title.y = element_text(size = 14),
+    axis.title.x = element_text(size = 15),
+    # plot.title = element_text(size = 14, face = "bold"),
     strip.placement = "outside",
     strip.background = element_rect(fill = "grey90", color = NA),
-    strip.text = element_text(face = "bold",
-                              size = rel(0.75), hjust = 0),
+    strip.text = element_text(face = "bold", 
+                              margin = margin(t = 1, b = 1),
+                              size = rel(1.2), 
+                              hjust = 0),
     panel.background = element_rect(fill = "white")) +
   ggforce::facet_col(facets = "Attribute", 
                      scales = "free_y", 
@@ -357,172 +362,6 @@ ggsave('Manuscript files/figures/AMCEs_as_cjbart.png', width = 12, height = 8)
 
 
 
-
-
-
-
-###' *Plot Distribution of IMCEs* 
-# plot(imces_ext) # plots IMCEs ordered by size (not what we want)
-# Extract data frames from the results
-imces_ext <- readRDS("1c_Model_Objects/2024-11-18_imces_ext.rds")
-attribute_levels <- imces_ext$att_levels # attribute levels
-imce_df <- imces_ext$imce # point estimates
-imce_lower_df <- imces_ext$imce_lower 
-imce_upper_df <- imces_ext$imce_upper
-att_lookup <- imces_ext$att_lookup
-
-
-# Reshape IMCE data from wide to long format
-imce_long <- imce_df %>%
-  select(all_of(c(attribute_levels, 'c_id'))) %>%
-  pivot_longer(cols = -c_id, names_to = "Level", values_to = "IMCE")
-
-imce_lower_long <- imce_lower_df %>%
-  select(all_of(c(attribute_levels, 'c_id'))) %>%
-  pivot_longer(cols = -c_id, names_to = "Level", values_to = "Lower")
-
-imce_upper_long <- imce_upper_df %>%
-  select(all_of(c(attribute_levels, 'c_id'))) %>%
-  pivot_longer(cols = -c_id, names_to = "Level", values_to = "Upper")
-
-# Combine IMCE estimates and confidence intervals
-imce_combined <- imce_long %>%
-  left_join(imce_lower_long, by = c("c_id", "Level")) %>%
-  left_join(imce_upper_long, by = c("c_id", "Level"))
-
-# Merge with att_lookup to get Attribute names
-imce_combined <- imce_combined %>%
-  left_join(att_lookup, by = c("Level" = "Level"))
-
-# Calculate mean IMCE and confidence intervals for each attribute level
-plot_data <- imce_combined %>%
-  group_by(Attribute, Level) %>%
-  summarize(
-    IMCE = mean(IMCE, na.rm = TRUE),
-    Lower = mean(Lower, na.rm = TRUE),
-    Upper = mean(Upper, na.rm = TRUE)
-  ) %>%
-  ungroup()
-
-# Create a combined label for Y-axis
-plot_data <- plot_data %>%
-  mutate(AttributeLevel = paste(Attribute, Level, sep = " - "))
-
-
-# Define baseline levels with IMCE = 0
-baseline_levels <- data.frame(
-  Attribute = c("Sold_killed_UKR", "Sold_killed_RUS", "Civ_killed_UKR",
-                "Infra_Destr_UKR", "Perc_GDP_milit", "Perc_GDP_econ",
-                "Risk_Nuke", "Territ_Cession", "Polit_Self_Det_UKR"),
-  Level = c('12,500', '25,000.', '4,000', '50B', '0.1% of GDP', '0.1% of GDP.',
-            'Not present (0%)', 'None', 'Full'),
-  IMCE = 0,
-  Lower = 0,
-  Upper = 0
-)
-
-# Add baseline levels to the plot_data
-plot_data <- plot_data %>%
-  bind_rows(baseline_levels)
-
-
-# Create the desired order data frame
-desired_orders_df <- data.frame(
-  Attribute = c(rep("Sold_killed_UKR", 3),
-                rep("Sold_killed_RUS", 3),
-                rep("Civ_killed_UKR", 3),
-                rep("Infra_Destr_UKR", 3),
-                rep("Perc_GDP_milit", 3),
-                rep("Perc_GDP_econ", 3),
-                rep("Risk_Nuke", 3),
-                rep("Territ_Cession", 4),
-                rep("Polit_Self_Det_UKR", 3)),
-  Level = c('12,500', "25,000", "50,000", 
-            '25,000.', "50,000.", "100,000", 
-            '4,000', "8,000", "16,000", 
-            '50B', "100B", "200B",
-            '0.1% of GDP', "0.2% of GDP", "0.3% of GDP", 
-            '0.1% of GDP.', "0.2% of GDP.", "0.3% of GDP.", 
-            'Not present (0%)', "Low (5%)", "Moderate (10%)", 
-            'None', "Crimea (4%)", "2014 LoC (8%)", "2023 LoC (16%)",
-            'Full', "No EU/NATO", "Russian influence"),
-  global_order = 1:28,
-  attribute_order = c(rep(1,3), rep(2,3), rep(3,3), rep(4,3), rep(5,3), 
-                      rep(6,3), rep(7,3), rep(8,4), rep(9,3)),
-  level_order = c(1:3, 1:3, 1:3, 1:3, 1:3, 1:3, 1:3, 1:4, 1:3)
-)
-
-# Merge desired order into plot_data
-plot_data <- plot_data %>%
-  left_join(desired_orders_df, by = c("Attribute", "Level"))
-
-# plot_data <- plot_data[order(plot_data$global_order), ]
-plot_data
-
-
-# Update the AttributeLevel for the baselines
-# plot_data <- plot_data %>%
-#   mutate(AttributeLevel = paste(Attribute, Level, sep = " - "))
-
-# Reorder AttributeLevel factor based on updated global_order
-# plot_data$AttributeLevel <- factor(plot_data$AttributeLevel, levels = plot_data$AttributeLevel[order(-plot_data$global_order)])
-# plot_data <- plot_data[order(plot_data$global_order), ]
-
-# plot_data_legacy <- plot_data
-# plot_data <- plot_data_legacy
-
-# order the attributes 
-plot_data$Attribute = factor(plot_data$Attribute, levels = unique(plot_data$Attribute[order(plot_data$attribute_order)]))
-
-
-custom_labels <- c(
-  "Sold_killed_UKR" = "Ukrainian military casualties",
-  "Sold_killed_RUS" = "Russian military casualties",
-  "Civ_killed_UKR" = "Ukrainian civilian casualties",
-  "Infra_Destr_UKR" = "Ukrainian infrastructure loss",
-  "Perc_GDP_milit" = "Military Aid (% GDP)",
-  "Perc_GDP_econ" = "Economic Aid (% GDP)",
-  "Risk_Nuke" = "Nuclear Strike Risk",
-  "Territ_Cession" = "Territorial Concessions",
-  "Polit_Self_Det_UKR" = "Sovereignity"
-)
-
-plot_data$Level <- factor(plot_data$Level, levels = rev(plot_data$Level[order(plot_data$global_order)]))
-
-
-# Plot with baselines included
-ggplot(plot_data, aes(x = IMCE, 
-                      y = Level,
-                      color = Attribute)) +
-  geom_vline(xintercept = 0) +
-  # facet_col(.~Attribute) + 
-  geom_point() +
-  geom_errorbarh(aes(xmin = Lower, xmax = Upper), height = 0.2) +
-  labs(
-    x = "AMCE Estimate",
-    y = "",
-    title = "AMCE Estimates with 95% CIs") +
-  theme_minimal() +
-  guides(color = "none") +
-  theme(
-      axis.text.y = element_text(size = 10),
-      axis.title.y = element_text(size = 12),
-      axis.title.x = element_text(size = 12),
-      plot.title = element_text(size = 14, face = "bold"),
-      strip.placement = "outside",
-      strip.background = element_rect(fill = "grey90", color = NA),
-      strip.text = element_text(face = "bold",
-                                size = rel(0.75), hjust = 0),
-      panel.background = element_rect(fill = "white")) +
-  ggforce::facet_col(facets = "Attribute", 
-                     scales = "free_y", 
-                     space = "free", 
-                     strip.position = c('top'),
-                     labeller = labeller(Attribute = custom_labels))
-
-
-
-ggsave('Manuscript files/figures/AMCEs.png', width = 4, height = 10)
 
 
 
@@ -558,7 +397,6 @@ var_imps_ext <- readRDS("1c_Model_Objects/2024-11-18_var_imps_ext.rds")
 
 
 #####' *Plot Variable Importances*
-
 ### Plot with off-the-shelf function included in package (as in Paper)
 # plot(var_imps_red)
 # plot(var_imps_ext)
@@ -719,23 +557,29 @@ ggplot(plot_data,
   # scale_x_discrete(guide = guide_axis(n.dodge = 5)) +
   scale_fill_gradient(low="white", high="firebrick1") +
   labs(x = "Covariates", 
-       y = "Attribute-level", 
+       y = "Attribute Level", 
        fill = "Importance") +
-  theme(axis.text.x = element_text(size = 11, 
-                                   face = 'bold',
-                                   angle=90, 
-                                   vjust = 0.5, 
-                                   hjust = 0.5),
-        axis.title = element_text(size = 12, face = 'bold'),
+  theme(axis.text.x = element_text(size = 18, 
+                                   # face = 'bold',
+                                   angle=40, 
+                                   vjust = 1, hjust = 1,
+                                   lineheight = 0.75),
+        axis.text.y = element_text(size = 18, 
+                                   # face = 'bold',
+                                   vjust = 0.5, hjust = 1),
+        axis.title = element_text(size = 18, face = 'bold'),
         strip.placement = "outside",
         strip.background = element_rect(fill = "grey80", 
                                         color = "grey50"),
-        strip.text = element_text(color = "black", size = 11),
-        panel.background = element_rect(fill = "white"))
+        strip.text = element_text(color = "black", size = 17),
+        panel.background = element_rect(fill = "white"),
+        legend.text = element_text(size = 14),
+        legend.title = element_text(size = 15)
+        )
 
 
 # ggsave('1d_Plots/RF_VarImps_red.png')
-ggsave('Manuscript files/figures/RF_VarImps_ext_v3.png')
+ggsave('Manuscript files/figures/RF_VarImps_ext_v4.png')
 
 
 
@@ -803,7 +647,7 @@ fit <- rpart::rpart(formula = `16,000` ~ Country + Age + Gender + `Left-Right-3`
 ) 
 printcp(fit) # how many splits with which cp
 png("Manuscript files/figures/DecTree_ext_Civ_killed_Ukr_16k.png", width = 800, height = 600)
-rpart.plot(fit, node.fun = node_fun, cex = 1.2, tweak = 2, 
+rpart.plot(fit, node.fun = node_fun, cex = 1.55, tweak = 2, 
            # , main = paste('Target: IMCEs of', find_attr(fit$terms[[2]]), '=',  fit$terms[[2]])
            )
 dev.off()
@@ -815,8 +659,8 @@ fit <- rpart::rpart(formula = `100,000` ~ Country + Age + Gender + `Left-Right-3
                     imces_ext$imce
                     , control = rpart.control(cp = 0.02)  # complexity param, default = 0.01, larger --> less complex 
 ) 
-png("Manuscript files/figures/DecTree_ext_RUS_Sold_killed_100k.png", width = 800, height = 600)
-rpart.plot(fit, node.fun = node_fun, cex = 1.2, tweak = 2.0, 
+png("Manuscript files/figures/DecTree_ext_RUS_Sold_killed_100k.png", width = 900, height = 600)
+rpart.plot(fit, node.fun = node_fun, cex = 1.1, tweak = 2.65, 
            # , main = paste('Target: IMCEs of', find_attr(fit$terms[[2]]), '=',  fit$terms[[2]])
            )
 dev.off()
@@ -828,7 +672,7 @@ fit <- rpart::rpart(formula = `Moderate (10%)` ~ Country + Age + Gender + `Left-
                     , control = rpart.control(cp = 0.02)  # complexity param, default = 0.01, larger --> less complex 
 ) 
 png("Manuscript files/figures/DecTree_ext_Risk_Nuke_Moderate.png", width = 800, height = 600)
-rpart.plot(fit, node.fun = node_fun, cex = 1.2, tweak = 2, 
+rpart.plot(fit, node.fun = node_fun, cex = 1.1, tweak = 2.8, 
            # , main = paste('Target: IMCEs of', find_attr(fit$terms[[2]]), '=',  fit$terms[[2]])
            )
 dev.off()
@@ -840,7 +684,7 @@ fit <- rpart::rpart(formula = `2014 LoC (8%)` ~ Country + Age + Gender + `Left-R
                     , control = rpart.control(cp = 0.02)  # complexity param, default = 0.01, larger --> less complex 
 ) 
 png("Manuscript files/figures/DecTree_ext_Territ_Cession_8perc.png", width = 800, height = 600)
-rpart.plot(fit, node.fun = node_fun, cex = 1.2, tweak = 2, 
+rpart.plot(fit, node.fun = node_fun, cex = 1.1, tweak = 2.8, 
            # , main = paste('Target: IMCEs of', find_attr(fit$terms[[2]]), '=',  fit$terms[[2]])
            )
 dev.off()
