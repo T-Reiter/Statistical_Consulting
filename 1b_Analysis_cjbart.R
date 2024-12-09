@@ -111,18 +111,38 @@ fit_cjbart_red <- readRDS("1c_Model_Objects/2024-11-18_fit_cjbart_red.rds")
 
 
 ### Fit the extended model
-set.seed(123)
-fit_cjbart_ext = cjbart(data = cj_tidy[, vars_ext], 
+# set.seed(123)
+fit_cjbart_ext_s123 = cjbart(data = cj_tidy[, vars_ext], 
                         Y = "y",
                         # type = "choice", 
                         id = "c_id", 
                         round = "task", 
                         use_round = TRUE, 
-                        seed = 99,
+                        seed = 123,
                         cores = 4)
 
+
+
+# sNumber provides the seed, cNumber provides the cores used 
+# these 2 numbers determine the randomness in the BART tree building 
 # saveRDS(fit_cjbart_ext6_noround, "1c_Model_Objects/2024-11-18_fit_cjbart_ext6_noround.rds")
-fit_cjbart_ext <- readRDS("1c_Model_Objects/2024-11-18_fit_cjbart_ext.rds")
+# fit_cjbart_ext <- readRDS("1c_Model_Objects/2024-11-18_fit_cjbart_ext.rds")
+saveRDS(fit_cjbart_ext_s123, "1c_Model_Objects/2024-12-09_fit_cjbart_ext_s123_c4.rds")
+fit_cjbart_ext <- readRDS("1c_Model_Objects/2024-12-09_fit_cjbart_ext_s123_c4.rds")
+
+
+
+#' *Fit the model with the custom as-if-non-unix function*
+source('00_Custom_Source/cjbart_custom.R')
+set.seed(42)
+cfit_cjbart_es42_is123_v1 = cjbart_custom(data = cj_tidy[, vars_ext], 
+                             Y = "y",
+                             # type = "choice", 
+                             id = "c_id", 
+                             round = "task", 
+                             use_round = TRUE, 
+                             seed = 123,
+                             cores = 4)
 
 
 
@@ -621,7 +641,7 @@ rename_map <- c(
   "q10_2" = "Anti Weapon\ndeliveries 7",
   "q10_6" = "General Weapon\nfor defense 7",
   "q10_8" = "Weapons if\nciv. casualties  7",
-  "q10_10" = "Weapons if\n infra. destr. 7",
+  "q10_10" = "Weapons if infra. destr. 7",
   "Q11" = "Anti Nato 5",
   "q1617_RUS" = "Empathy RUS 7",
   "q1617_USA" = "Anti USA 7",
@@ -696,6 +716,31 @@ dev.off()
 
 
 ####' *Additional Trees for exploration*
+
+# Sanity Check Infstructure Destroyed 100B
+fit <- rpart::rpart(formula = `100B` ~ Country + Age + Gender + `Left-Right-3` + `for Peace 01: No Concessions` + `Weapons if infra. destr. 7`,
+                    imces_ext$imce
+                    , control = rpart.control(cp = 0.04)  # complexity param, default = 0.01, larger --> less complex 
+) 
+rpart.plot(fit, node.fun = node_fun, cex = 1.1, tweak = 2.8, 
+           # , main = paste('Target: IMCEs of', find_attr(fit$terms[[2]]), '=',  fit$terms[[2]])
+)
+
+
+# Infrastructure destroyed 200B
+fit <- rpart::rpart(formula = `200B` ~ Country + Age + Gender + `Left-Right-3` + `for Peace 01: No Concessions` + `Weapons if infra. destr. 7`,
+                    imces_ext$imce
+                    , control = rpart.control(cp = 0.06)  # complexity param, default = 0.01, larger --> less complex 
+) 
+rpart.plot(fit, node.fun = node_fun, cex = 1.1, tweak = 2.8, 
+           # , main = paste('Target: IMCEs of', find_attr(fit$terms[[2]]), '=',  fit$terms[[2]])
+)
+
+
+
+
+
+
 # IMCEs of 100,000 RUS Sold. killed (vs. reference: 25,000)
 fit <- rpart::rpart(formula = `100,000` ~ Country + age + gender + leftright3,
                     imces_red$imce
