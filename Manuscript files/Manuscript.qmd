@@ -480,6 +480,16 @@ Because our goal was to complement the existing analyses reported by @rudolph_ci
 
 # Conclusion
 
+Complementing the analyses reported in @rudolph_citizens_2024, we used the novel cjbart approach by @robinson_how_2024 to scrutinize the present conjoint data for effect heterogeneity.
+Specifically, we found that the importance of certain attributes (levels) differed with regard to country, where differences were most pronounced for the distinction UK vs. the other four countries.
+For example, for all five countries selection probabilities decreased with increasing civilian casualties but the effect was stronger for non-UK participants.
+Similarly, the opinion that Ukraine should not make any concessions to Russia to end the aggression predicted some heterogeneity.
+People who oppose concessions favored profiles that were associated with higher numbers of killed Russian soldiers, while for concession proponents the selection probability decreased.
+
+With AMCE estimates similar to the primary analysis reported by @rudolph_citizens_2024, we believe that the newly developed cjbart-method provides a powerful tool to investigate effect heterogeneity in high-dimensional conjoint data.
+As with any new method, further methodological research is needed to assess to capabilities of the method under different conditions.
+Most importantly, the results of cjbart should always be interpreted as what they are: an exploratory peek into underlying causal relations between covariates and individual preferences for certain attributes (i.e., IMCEs).
+Our recommendation is to use these exploratory insights to generate hypotheses that can subsequently be tested to inform political theory.
 
 
 \newpage
