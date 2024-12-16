@@ -13,6 +13,7 @@ library(rpart.plot) # standard built-in plot function used in the paper
 library(dplyr)
 library(tidyr)
 library(ggtext)
+library(forcats)
 
 
 ### Set WD
@@ -716,9 +717,28 @@ dev.off()
 
 
 ####' *Additional Trees for exploration*
-
 # Sanity Check Infstructure Destroyed 100B
-fit <- rpart::rpart(formula = `100B` ~ Country + Age + Gender + `Left-Right-3` + `for Peace 01: No Concessions` + `Weapons if infra. destr. 7`,
+fit <- rpart::rpart(formula = `100B` ~ Country + Age + Gender + `Left-Right-3` + 
+                      `for Peace 01: No Concessions` + 
+                      `Weapons if infra. destr. 7`,
+                    imces_ext$imce
+                    , control = rpart.control(cp = 0.04)  # complexity param, default = 0.01, larger --> less complex 
+) 
+rpart.plot(fit, node.fun = node_fun, cex = 1.1, tweak = 2.8, 
+           # , main = paste('Target: IMCEs of', find_attr(fit$terms[[2]]), '=',  fit$terms[[2]])
+)
+
+# Ukrainian Soldiers killed (50k)
+fit <- rpart::rpart(formula = `50,000` ~ Country + Age + Gender + `Left-Right-3` + `for Peace 01: No Concessions` + `Weapons if infra. destr. 7`,
+                    imces_ext$imce
+                    , control = rpart.control(cp = 0.04)  # complexity param, default = 0.01, larger --> less complex 
+) 
+rpart.plot(fit, node.fun = node_fun, cex = 0.8, tweak = 2.8, 
+           # , main = paste('Target: IMCEs of', find_attr(fit$terms[[2]]), '=',  fit$terms[[2]])
+)
+
+# Ukrainian Soldiers killed (25k)
+fit <- rpart::rpart(formula = `25,000` ~ Country + Age + Gender + `Left-Right-3` + `for Peace 01: No Concessions` + `Weapons if infra. destr. 7`,
                     imces_ext$imce
                     , control = rpart.control(cp = 0.04)  # complexity param, default = 0.01, larger --> less complex 
 ) 
@@ -727,12 +747,13 @@ rpart.plot(fit, node.fun = node_fun, cex = 1.1, tweak = 2.8,
 )
 
 
+
 # Infrastructure destroyed 200B
 fit <- rpart::rpart(formula = `200B` ~ Country + Age + Gender + `Left-Right-3` + `for Peace 01: No Concessions` + `Weapons if infra. destr. 7`,
                     imces_ext$imce
                     , control = rpart.control(cp = 0.06)  # complexity param, default = 0.01, larger --> less complex 
 ) 
-rpart.plot(fit, node.fun = node_fun, cex = 1.1, tweak = 2.8, 
+rpart.plot(fit, node.fun = node_fun, cex = 0.95, tweak = 3, 
            # , main = paste('Target: IMCEs of', find_attr(fit$terms[[2]]), '=',  fit$terms[[2]])
 )
 
@@ -770,3 +791,84 @@ rpart.plot(fit, node.fun = node_fun,
 
 
 
+
+
+#### Additionally Calculate Marginal Means 
+library(cregg)
+mm = cregg::cj(data = cj_tidy,
+              y ~ Sold_killed_UKR + Sold_killed_RUS + Civ_killed_UKR + 
+                Infra_Destr_UKR + Perc_GDP_milit + Perc_GDP_econ + 
+                Risk_Nuke + Territ_Cession + Polit_Self_Det_UKR,  
+              id = ~ c_id, 
+              estimate = "mm",
+              level_order = "descending") 
+
+### Plot MMs 
+ggplot(data = mm, 
+       aes(x = fct_inorder(level), y = estimate)) +
+  theme_bw() +
+  ylim(0.4, 0.6) +
+  geom_pointrange(aes(ymin = lower, ymax = upper, color = feature), shape=16) + 
+  geom_hline(yintercept = 0.5, color = "grey") + 
+  coord_flip() +
+  facet_wrap(~feature, ncol = 1L, scales = "free_y", strip.position = "right", 
+             labeller = label_wrap_gen(10)) +
+  labs(y="Marginal Means",x="") + 
+  theme(strip.text.y.right = element_text(angle = 0), legend.position = "none")
+
+
+# Country Subgroup MMs 
+mm_by_country <- cregg::cj(
+  data = cj_tidy,
+  formula = y ~ Sold_killed_UKR + Sold_killed_RUS + Civ_killed_UKR + 
+    Infra_Destr_UKR + Perc_GDP_milit + Perc_GDP_econ + 
+    Risk_Nuke + Territ_Cession + Polit_Self_Det_UKR,
+  id = ~ c_id,
+  estimate = "mm",
+  level_order = "descending",
+  by = ~ Country
+)
+
+# Plot marginal means by country
+ggplot(data = mm_by_country, 
+       aes(x = fct_inorder(level), y = estimate, color = Country)) +
+  theme_bw() +
+  ylim(0.4, 0.61) +
+  geom_pointrange(aes(ymin = lower, ymax = upper), 
+                  shape = 16,
+                  position = position_dodge(width = 0.5)) + 
+  geom_hline(yintercept = 0.5, color = "grey") + 
+  coord_flip() +
+  facet_wrap(~feature, ncol = 1, scales = "free_y", strip.position = "right",
+             labeller = label_wrap_gen(10)) +
+  labs(y="Marginal Means", x="", color="Country") + 
+  theme(axis.text.y = element_text(size = 10),
+        legend.text = element_text(size = 10),
+        strip.text.y.right = element_text(angle = 0))
+
+
+
+# cregg::AMCEs
+amce <- cregg::cj(data = cj_tidy,
+                         y ~ Sold_killed_UKR + Sold_killed_RUS + Civ_killed_UKR + 
+                           Infra_Destr_UKR + Perc_GDP_milit + Perc_GDP_econ + 
+                           Risk_Nuke + Territ_Cession + Polit_Self_Det_UKR,
+                         id = ~ c_id,
+                         estimate = "amce",
+                         level_order = "descending")
+
+
+### Plot
+ggplot(data = amce,
+         aes(x = fct_inorder(level), y = estimate)) +
+  theme_bw() +
+  ylim(-0.3, 0.1) +
+  geom_pointrange(aes(ymin = lower, ymax = upper, color = feature), shape=16) +
+  geom_hline(yintercept = 0, color = "grey") +
+  coord_flip() +
+  facet_wrap(~feature, ncol = 1L, scales = "free_y", strip.position = "right",
+             labeller = label_wrap_gen(10)) +
+  labs(y="Average Marginal Component Effect (AMCE)",
+       x="") +
+  theme(strip.text.y.right = element_text(angle = 0),
+        legend.position = "none")
