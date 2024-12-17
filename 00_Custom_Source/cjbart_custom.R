@@ -238,6 +238,7 @@ cjbart_custom <- function(data, Y, type = NULL, id = NULL, round = NULL, use_rou
 #' @importFrom stats predict
 #' @example inst/examples/basic_workflow.R
 #' @export
+
 IMCE <- function(data,
                  model,
                  attribs,

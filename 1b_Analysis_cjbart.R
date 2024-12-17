@@ -127,13 +127,28 @@ fit_cjbart_ext_s123 = cjbart(data = cj_tidy[, vars_ext],
 # sNumber provides the seed, cNumber provides the cores used 
 # these 2 numbers determine the randomness in the BART tree building 
 # saveRDS(fit_cjbart_ext6_noround, "1c_Model_Objects/2024-11-18_fit_cjbart_ext6_noround.rds")
-# fit_cjbart_ext <- readRDS("1c_Model_Objects/2024-11-18_fit_cjbart_ext.rds")
-saveRDS(fit_cjbart_ext_s123, "1c_Model_Objects/2024-12-09_fit_cjbart_ext_s123_c4.rds")
-fit_cjbart_ext <- readRDS("1c_Model_Objects/2024-12-09_fit_cjbart_ext_s123_c4.rds")
+fit_cjbart_ext <- readRDS("1c_Model_Objects/2024-11-18_fit_cjbart_ext.rds")
 
 
 
-#' *Fit the model with the custom as-if-non-unix function*
+#' *Fit extended model with larger (non-default) Burn-In/Draws for*
+#' *extended converegence assessment*
+fit_cjbart_ext_large = cjbart(data = cj_tidy[, vars_ext], 
+                             Y = "y",
+                             # type = "choice", 
+                             id = "c_id", 
+                             round = "task", 
+                             use_round = TRUE, 
+                             seed = 99,
+                             nskip = 1000, # Burn-In instead of 100 (default)
+                             ndpost = 5000, # Posterior Draws instead of 1000
+                             cores = 4)
+saveRDS(fit_cjbart_ext_large, "1c_Model_Objects/2024-12-17_fit_cjbart_ext_large.rds")
+fit_cjbart_ext_large <- readRDS("1c_Model_Objects/2024-12-17_fit_cjbart_ext_large.rds")
+
+
+
+#' *Fit the model with the custom as-if-non-unix cjbart function*
 source('00_Custom_Source/cjbart_custom.R')
 set.seed(42)
 cfit_cjbart_es42_is123_v1 = cjbart_custom(data = cj_tidy[, vars_ext], 
@@ -142,10 +157,13 @@ cfit_cjbart_es42_is123_v1 = cjbart_custom(data = cj_tidy[, vars_ext],
                              id = "c_id", 
                              round = "task", 
                              use_round = TRUE, 
-                             seed = 123,
+                             seed = 123, # returns warning --> no seed needed
                              cores = 4)
-
-
+# saveRDS(cfit_cjbart_es42_is123_v1,
+#         '1c_Model_Objects/2024-11-18_cfit_cjbart_es42_is123_v1.rds')
+cfit_cjbart_es42_is123_v1 = 
+  readRDS('1c_Model_Objects/2024-11-18_cfit_cjbart_es42_is123_v1.rds')
+rm(cfit_cjbart_es42_is123_v1)
 
 
 #####' *Get IMCEs*
@@ -206,8 +224,8 @@ imces_ext <- IMCE(data = cj_tidy[, vars_ext],
                                  , 'None'
                                  , 'Full'
                   )
-                  # ,method = 'parametric'
-                  , cores = 4
+                  ,method = 'rubin'
+                  , cores = 2
 )
 summary.cjbart(imces_ext)
 
