@@ -88,9 +88,10 @@
 #' *Insert TR: Set Arguments for IMCE dry-run to extract trace plots*
 data = cj_tidy[, vars_ext]
 keep_omce = TRUE
-# model = fit_cjbart_ext # standard model  
-model = fit_cjbart_ext_large 
-large = T
+model = fit_cjbart_ext # standard model  
+large = F
+# model = fit_cjbart_ext_large 
+# large = T
       # 'larger' model for longer Burn-In and More Draws
       # nskip = 2000 (vs. 250), ndraws = 5000 (vs. 1000)
 attribs = c("Sold_killed_UKR"
