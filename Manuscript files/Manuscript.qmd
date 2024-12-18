@@ -539,7 +539,7 @@ col_header1 <- textGrob("Default Sized Model", x=0.5, hjust=0.5, gp=gpar(fontfac
 col_subheader1 <- textGrob("Burn-In: 100 \nPosterior Draws: 1000", x=0.5, hjust=0.5, gp=gpar(fontsize=8))
 
 col_header2 <- textGrob("Large Model", x=0.5, hjust=0.5, gp=gpar(fontface="bold", fontsize=10))
-col_subheader2 <- textGrob("Burn-In: 1000 \nPosterior Draws: 5000", x=0.5, hjust=0.5, gp=gpar(fontsize=8))
+col_subheader2 <- textGrob("Burn-In: 2000 \nPosterior Draws: 5000", x=0.5, hjust=0.5, gp=gpar(fontsize=8))
 
 col_header1_combined <- arrangeGrob(col_header1, col_subheader1, ncol=1,
                                     heights=c(unit(0.5,"lines"), unit(0.5,"lines")))
@@ -611,7 +611,7 @@ col_header1 <- textGrob("Default Sized Model", x=0.5, hjust=0.5, gp=gpar(fontfac
 col_subheader1 <- textGrob("Burn-In: 100 \nPosterior Draws: 1000", x=0.5, hjust=0.5, gp=gpar(fontsize=8))
 
 col_header2 <- textGrob("Large Model", x=0.5, hjust=0.5, gp=gpar(fontface="bold", fontsize=10))
-col_subheader2 <- textGrob("Burn-In: 1000 \nPosterior Draws: 5000", x=0.5, hjust=0.5, gp=gpar(fontsize=8))
+col_subheader2 <- textGrob("Burn-In: 2000 \nPosterior Draws: 5000", x=0.5, hjust=0.5, gp=gpar(fontsize=8))
 
 col_header1_combined <- arrangeGrob(col_header1, col_subheader1, ncol=1,
                                     heights=c(unit(0.5,"lines"), unit(0.5,"lines")))
@@ -678,10 +678,10 @@ sov_gew_omce <- rasterGrob(
 
 # Define column headers (centered)
 col_header1 <- textGrob("Attribute 1\nUkrainian Military Casualties", x=0.5, hjust=0.5, gp=gpar(fontface="bold", fontsize=10))
-col_subheader1 <- textGrob("Large Model\nBurn-In: 100 \nPosterior Draws: 1000", x=0.5, hjust=0.5, gp=gpar(fontsize=8))
+col_subheader1 <- textGrob("Large Model\nBurn-In: 2000 \nPosterior Draws: 5000", x=0.5, hjust=0.5, gp=gpar(fontsize=8))
 
 col_header2 <- textGrob("Attribute 9\nSovereignity", x=0.5, hjust=0.5, gp=gpar(fontface="bold", fontsize=10))
-col_subheader2 <- textGrob("Large Model\nBurn-In: 100 \nPosterior Draws: 1000", x=0.5, hjust=0.5, gp=gpar(fontsize=8))
+col_subheader2 <- textGrob("Large Model\nBurn-In: 2000 \nPosterior Draws: 5000", x=0.5, hjust=0.5, gp=gpar(fontsize=8))
 
 col_header1_combined <- arrangeGrob(col_header1, col_subheader1, ncol=1,
                                     heights=c(unit(0.5,"lines"), unit(0.5,"lines")))
