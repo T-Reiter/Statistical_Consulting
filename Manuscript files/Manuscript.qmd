@@ -494,6 +494,225 @@ Our recommendation is to use these exploratory insights to generate hypotheses t
 
 \newpage
 
+
+# Appendix
+## A1 Convergence Diagnostics - Attribute: Ukrainian Soldiers Killed 
+
+```{r convergence-diagnostics-usk, echo=FALSE, fig.align='center', fig.fullwidth=TRUE, out.width="100%"}
+#| fig-subcap: "Exemplary Posterior Draw Traceplots for Convergence Assessment - Attribute 1"
+#| fig-cap: "Note. Rows 1 and 2 display Traceplots of Draws from the BART Posterior Distribution for the selection probabilities (p_hat_0 and p_hat_1) if Attribute 1 (Ukrainian Military Casualties) was set to the reference level (i.e., 12,500) or first level of interest (i.e., 25,000). Row 3 represents the associated OMCE 'draws' calculcate by taking the different of p_hat_1 and p_hat_0. Columns 1 and 2 contain draws from the default sized BART model (Burn-In: 100, Posterior Draws: 1000) and larger BART Models (Burn-In: 1000, Posterior Draws: 5000)\\linebreak Models were fit using parallel computation on 4 cores."
+#| label: convergence-diagnostics-usk
+# if needed add linebreaks in fig-cap via \\linebreak
+
+library(gridExtra)
+library(grid)
+library(png)
+
+# Load the images
+usk_p0_small <- rasterGrob(
+  png::readPNG("figures/Traceplots/Ukr_Sold_killed_phat0_12k_1.png"), 
+  interpolate = TRUE, width=unit(1,"npc"), height=unit(1,"npc")
+)
+usk_p0_large <- rasterGrob(
+  png::readPNG("figures/Traceplots/Ukr_Sold_killed_phat0_12k_1_large.png"), 
+  interpolate = TRUE, width=unit(1,"npc"), height=unit(1,"npc")
+)
+usk_p1_small <- rasterGrob(
+  png::readPNG("figures/Traceplots/Ukr_Sold_killed_phat1_25k_1.png"), 
+  interpolate = TRUE, width=unit(1,"npc"), height=unit(1,"npc")
+)
+usk_p1_large <- rasterGrob(
+  png::readPNG("figures/Traceplots/Ukr_Sold_killed_phat1_25k_1_large.png"), 
+  interpolate = TRUE, width=unit(1,"npc"), height=unit(1,"npc")
+)
+usk_omce_small <- rasterGrob(
+  png::readPNG("figures/Traceplots/Ukr_Sold_killed_omce_25k_1.png"), 
+  interpolate = TRUE, width=unit(1,"npc"), height=unit(1,"npc")
+)
+usk_omce_large <- rasterGrob(
+  png::readPNG("figures/Traceplots/Ukr_Sold_killed_omce_25k_1_large.png"), 
+  interpolate = TRUE, width=unit(1,"npc"), height=unit(1,"npc")
+)
+
+# Define column headers (centered)
+col_header1 <- textGrob("Default Sized Model", x=0.5, hjust=0.5, gp=gpar(fontface="bold", fontsize=10))
+col_subheader1 <- textGrob("Burn-In: 100 \nPosterior Draws: 1000", x=0.5, hjust=0.5, gp=gpar(fontsize=8))
+
+col_header2 <- textGrob("Large Model", x=0.5, hjust=0.5, gp=gpar(fontface="bold", fontsize=10))
+col_subheader2 <- textGrob("Burn-In: 1000 \nPosterior Draws: 5000", x=0.5, hjust=0.5, gp=gpar(fontsize=8))
+
+col_header1_combined <- arrangeGrob(col_header1, col_subheader1, ncol=1,
+                                    heights=c(unit(0.5,"lines"), unit(0.5,"lines")))
+col_header2_combined <- arrangeGrob(col_header2, col_subheader2, ncol=1,
+                                    heights=c(unit(0.5,"lines"), unit(0.5,"lines")))
+
+# Single grobs for rows with newline and adjusted lineheight
+row_header_combined_1 <- textGrob(paste0("p_hat_0\n",
+                                         "phat_0[,1]"), x=0, hjust=0, 
+                                  gp=gpar(fontsize=10, lineheight=1))
+row_header_combined_2 <- textGrob(paste0("p_hat_1\n",
+                                         "phat_0[,1]"), x=0, hjust=0,
+                                  gp=gpar(fontsize=10, lineheight=1))
+row_header_combined_3 <- textGrob(paste0("omce_1\n",
+                                         "omces[,1]"), x=0, hjust=0,
+                                  gp=gpar(fontsize=10, lineheight=1))
+
+grid.arrange(
+  textGrob(""), col_header1_combined, col_header2_combined,
+  row_header_combined_1, usk_p0_small, usk_p0_large,
+  row_header_combined_2, usk_p1_small, usk_p1_large,
+  row_header_combined_3, usk_omce_small, usk_omce_large,
+  ncol=3,
+  widths=c(1,4,4),
+  heights=c(1.5,3,3,3)
+)
+```
+
+## A2 Convergence Diagnostics - Attribute: Sovereignity 
+
+```{r convergence-diagnostics-sov, echo=FALSE, fig.align='center', fig.fullwidth=TRUE, out.width="100%"}
+#| fig-subcap: "Exemplary Posterior Draw Traceplots for Convergence Assessment - Attribute 9"
+#| fig-cap: "Note. Rows 1 and 2 display Traceplots of Draws from the BART Posterior Distribution for the selection probabilities (p_hat_0 and p_hat_1) if Attribute 9 (Sovereignity) was set to the reference level (i.e., 'Full') or first level of interest (i.e., 'EU/NATO'). Row 3 represents the associated OMCE 'draws' calculcate by taking the different of p_hat_1 and p_hat_0. Columns 1 and 2 contain draws from the default sized BART model (Burn-In: 100, Posterior Draws: 1000) and larger BART Models (Burn-In: 1000, Posterior Draws: 5000).\\linebreak Models were fit using parallel computation on 4 cores."
+#| label: convergence-diagnostics-sov
+# if needed add linebreaks in fig-cap via \\linebreak
+
+library(gridExtra)
+library(grid)
+library(png)
+
+# Load the images
+sov_p0_small <- rasterGrob(
+  png::readPNG("figures/Traceplots/Sovereignity_phat0_Full_80088.png"), 
+  interpolate = TRUE, width=unit(1,"npc"), height=unit(1,"npc")
+)
+sov_p0_large <- rasterGrob(
+  png::readPNG("figures/Traceplots/Sovereignity_phat0_Full_80088_large.png"), 
+  interpolate = TRUE, width=unit(1,"npc"), height=unit(1,"npc")
+)
+sov_p1_small <- rasterGrob(
+  png::readPNG("figures/Traceplots/Sovereignity_phat1_EU_NATO_80088.png"), 
+  interpolate = TRUE, width=unit(1,"npc"), height=unit(1,"npc")
+)
+sov_p1_large <- rasterGrob(
+  png::readPNG("figures/Traceplots/Sovereignity_phat1_EU_NATO_80088_large.png"), 
+  interpolate = TRUE, width=unit(1,"npc"), height=unit(1,"npc")
+)
+sov_omce_small <- rasterGrob(
+  png::readPNG("figures/Traceplots/Sovereignity_omce_EU_NATO_80088.png"), 
+  interpolate = TRUE, width=unit(1,"npc"), height=unit(1,"npc")
+)
+sov_omce_large <- rasterGrob(
+  png::readPNG("figures/Traceplots/Sovereignity_omce_EU_NATO_80088_large.png"), 
+  interpolate = TRUE, width=unit(1,"npc"), height=unit(1,"npc")
+)
+
+# Define column headers (centered)
+col_header1 <- textGrob("Default Sized Model", x=0.5, hjust=0.5, gp=gpar(fontface="bold", fontsize=10))
+col_subheader1 <- textGrob("Burn-In: 100 \nPosterior Draws: 1000", x=0.5, hjust=0.5, gp=gpar(fontsize=8))
+
+col_header2 <- textGrob("Large Model", x=0.5, hjust=0.5, gp=gpar(fontface="bold", fontsize=10))
+col_subheader2 <- textGrob("Burn-In: 1000 \nPosterior Draws: 5000", x=0.5, hjust=0.5, gp=gpar(fontsize=8))
+
+col_header1_combined <- arrangeGrob(col_header1, col_subheader1, ncol=1,
+                                    heights=c(unit(0.5,"lines"), unit(0.5,"lines")))
+col_header2_combined <- arrangeGrob(col_header2, col_subheader2, ncol=1,
+                                    heights=c(unit(0.5,"lines"), unit(0.5,"lines")))
+
+# Single grobs for rows with newline and adjusted lineheight
+row_header_combined_1 <- textGrob(paste0("p_hat_0\n",
+                                         "phat_0[,1]"), x=0, hjust=0, 
+                                  gp=gpar(fontsize=10, lineheight=1))
+row_header_combined_2 <- textGrob(paste0("p_hat_1\n",
+                                         "phat_0[,1]"), x=0, hjust=0,
+                                  gp=gpar(fontsize=10, lineheight=1))
+row_header_combined_3 <- textGrob(paste0("omce_1\n",
+                                         "omces[,1]"), x=0, hjust=0,
+                                  gp=gpar(fontsize=10, lineheight=1))
+
+grid.arrange(
+  textGrob(""), col_header1_combined, col_header2_combined,
+  row_header_combined_1, sov_p0_small, sov_p0_large,
+  row_header_combined_2, sov_p1_small, sov_p1_large,
+  row_header_combined_3, sov_omce_small, sov_omce_large,
+  ncol=3,
+  widths=c(1,4,4),
+  heights=c(1.5,3,3,3)
+)
+```
+
+```{r convergence-diagnostics-geweke, echo=FALSE, fig.align='center', fig.fullwidth=TRUE, out.width="100%"}
+#| fig-subcap: "P-Value Distribution of Geweke's Diagnostic Test for 100 Sample MCMC Draws"
+#| fig-cap: "Note. Images display the p-value distribution of Geweke's Convergence Diagnostic Test (as implemented in r package BART) applied to a random sample of 100 Random Markov Chains as generated using the BART model with larger-than-default values for Burn-In and Posterior Draws. Geweke's Test is used for diagnosing Markov Chain convergence via testing equality of means of the 10 and last 50 percent (default values) of the posterior draws."
+#| label: convergence-diagnostics-geweke
+# if needed add linebreaks in fig-cap via \\linebreak
+
+library(gridExtra)
+library(grid)
+library(png)
+
+# Load the images
+usk_gew_p0 <- rasterGrob(
+  png::readPNG("figures/Geweke_pvals/Ukr_Sold_killed_phat0_12k_large.png"), 
+  interpolate = TRUE, width=unit(1,"npc"), height=unit(1,"npc")
+)
+usk_gew_p1 <- rasterGrob(
+  png::readPNG("figures/Geweke_pvals/Ukr_Sold_killed_phat1_25k_large.png"), 
+  interpolate = TRUE, width=unit(1,"npc"), height=unit(1,"npc")
+)
+usk_gew_omce <- rasterGrob(
+  png::readPNG("figures/Geweke_pvals/Ukr_Sold_killed_omce_25k_large.png"), 
+  interpolate = TRUE, width=unit(1,"npc"), height=unit(1,"npc")
+)
+sov_gew_p0 <- rasterGrob(
+  png::readPNG("figures/Geweke_pvals/Sovereignity_phat0_Full_large.png"), 
+  interpolate = TRUE, width=unit(1,"npc"), height=unit(1,"npc")
+)
+sov_gew_p1 <- rasterGrob(
+  png::readPNG("figures/Geweke_pvals/Sovereignity_phat1_EU_NATO_large.png"), 
+  interpolate = TRUE, width=unit(1,"npc"), height=unit(1,"npc")
+)
+sov_gew_omce <- rasterGrob(
+  png::readPNG("figures/Geweke_pvals/Sovereignity_omce_EU_NATO_large.png"), 
+  interpolate = TRUE, width=unit(1,"npc"), height=unit(1,"npc")
+)
+
+# Define column headers (centered)
+col_header1 <- textGrob("Attribute 1\nUkrainian Military Casualties", x=0.5, hjust=0.5, gp=gpar(fontface="bold", fontsize=10))
+col_subheader1 <- textGrob("Large Model\nBurn-In: 100 \nPosterior Draws: 1000", x=0.5, hjust=0.5, gp=gpar(fontsize=8))
+
+col_header2 <- textGrob("Attribute 9\nSovereignity", x=0.5, hjust=0.5, gp=gpar(fontface="bold", fontsize=10))
+col_subheader2 <- textGrob("Large Model\nBurn-In: 100 \nPosterior Draws: 1000", x=0.5, hjust=0.5, gp=gpar(fontsize=8))
+
+col_header1_combined <- arrangeGrob(col_header1, col_subheader1, ncol=1,
+                                    heights=c(unit(0.5,"lines"), unit(0.5,"lines")))
+col_header2_combined <- arrangeGrob(col_header2, col_subheader2, ncol=1,
+                                    heights=c(unit(0.5,"lines"), unit(0.5,"lines")))
+
+# Single grobs for rows with newline and adjusted lineheight
+row_header_combined_1 <- textGrob(paste0("p_hat_0\n",
+                                         "reference\nlevel"), x=0, hjust=0, 
+                                  gp=gpar(fontsize=10, lineheight=1))
+row_header_combined_2 <- textGrob(paste0("p_hat_1\n",
+                                         "level of\ninterest"), x=0, hjust=0,
+                                  gp=gpar(fontsize=10, lineheight=1))
+row_header_combined_3 <- textGrob(paste0("omce_1\n",
+                                         "OMCE"), x=0, hjust=0,
+                                  gp=gpar(fontsize=10, lineheight=1))
+
+grid.arrange(
+  textGrob(""), col_header1_combined, col_header2_combined,
+  row_header_combined_1, usk_gew_p0, sov_gew_p0,
+  row_header_combined_2, usk_gew_p1, sov_gew_p1,
+  row_header_combined_3, usk_gew_omce, sov_gew_omce,
+  ncol=3,
+  widths=c(1,4,4),
+  heights=c(3,3,3,3)
+)
+```
+
+
+\newpage
+
 # References
 
 <!-- References will auto-populate in the refs div below -->

@@ -328,7 +328,7 @@ rand_ind = sample(1:ncol(phat_0),size = 100, replace = F)
 z = gewekediag(phat_0[,rand_ind], frac1 = 0.1, frac2 = 0.5) 
 p_vals = pnorm(-1*abs(z$z),0,1) + (1-pnorm(abs(z$z),0,1))
 png(paste0("Manuscript files/figures/Geweke_pvals/",
-           "Ukr_Sold_killed_phat0_Full",
+           "Ukr_Sold_killed_phat0_12k",
            suffix, ".png"), 
     width = 800, height = 600)
 hist(p_vals, main = '') # cf. sample traceplots --> non convergence for most 
@@ -337,7 +337,7 @@ dev.off()
 
 # phat1
 png(paste0("Manuscript files/figures/Traceplots/",
-           "Ukr_Sold_killed_phat0_25k_1",
+           "Ukr_Sold_killed_phat1_25k_1",
            suffix, ".png"), 
     width = 800, height = 600)
 plot(phat_1[,1])
@@ -348,7 +348,7 @@ rand_ind = sample(1:ncol(phat_1),size = 100, replace = F)
 z = gewekediag(phat_1[,rand_ind], frac1 = 0.1, frac2 = 0.5) 
 p_vals = pnorm(-1*abs(z$z),0,1) + (1-pnorm(abs(z$z),0,1))
 png(paste0("Manuscript files/figures/Geweke_pvals/",
-           "Ukr_Sold_killed_phat1_Full",
+           "Ukr_Sold_killed_phat1_25k",
            suffix, ".png"), 
     width = 800, height = 600)
 hist(p_vals, main = '') # cf. sample traceplots --> non convergence for most 
@@ -368,7 +368,7 @@ rand_ind = sample(1:ncol(omce),size = 100, replace = F)
 z = gewekediag(omce[,rand_ind], frac1 = 0.1, frac2 = 0.5) 
 p_vals = pnorm(-1*abs(z$z),0,1) + (1-pnorm(abs(z$z),0,1))
 png(paste0("Manuscript files/figures/Geweke_pvals/",
-           "Ukr_Sold_killed_omce_Full",
+           "Ukr_Sold_killed_omce_25k",
            suffix, ".png"), 
     width = 800, height = 600)
 hist(p_vals, main = '') # cf. sample traceplots --> non convergence for most 
@@ -503,7 +503,7 @@ rand_ind = sample(1:ncol(phat_1),size = 100, replace = F)
 z = gewekediag(phat_1[,rand_ind], frac1 = 0.1, frac2 = 0.5) 
 p_vals = pnorm(-1*abs(z$z),0,1) + (1-pnorm(abs(z$z),0,1))
 png(paste0("Manuscript files/figures/Geweke_pvals/",
-           "Sovereignity_phat1_Full",
+           "Sovereignity_phat1_EU_NATO",
            suffix, ".png"), 
     width = 800, height = 600)
 hist(p_vals, main = '') # cf. sample traceplots --> non convergence for most 
@@ -523,7 +523,7 @@ rand_ind = sample(1:ncol(omce),size = 100, replace = F)
 z = gewekediag(omce[,rand_ind], frac1 = 0.1, frac2 = 0.5) 
 p_vals = pnorm(-1*abs(z$z),0,1) + (1-pnorm(abs(z$z),0,1))
 png(paste0("Manuscript files/figures/Geweke_pvals/",
-           "Sovereignity_omce_Full",
+           "Sovereignity_omce_EU_NATO",
            suffix, ".png"), 
     width = 800, height = 600)
 hist(p_vals, main = '') # cf. sample traceplots --> non convergence for most 
