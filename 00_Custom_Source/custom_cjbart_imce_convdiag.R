@@ -316,7 +316,7 @@ png(paste0("Manuscript files/figures/Traceplots/",
            "Ukr_Sold_killed_phat0_12k_1",
            suffix, ".png"), 
     width = 800, height = 600)
-plot(phat_0[,1])
+plot(phat_0[,1], cex.lab=1.5, cex.axis = 1.8)
 dev.off()
 # use BART's geweke diagnostic
 # --> calculates a z-score test of equality of means for the first
@@ -331,7 +331,7 @@ png(paste0("Manuscript files/figures/Geweke_pvals/",
            "Ukr_Sold_killed_phat0_12k",
            suffix, ".png"), 
     width = 800, height = 600)
-hist(p_vals, main = '') # cf. sample traceplots --> non convergence for most 
+hist(p_vals, main = '', cex.lab=1.5, cex.axis = 1.8) # cf. sample traceplots --> non convergence for most 
 dev.off()
 
 
@@ -340,7 +340,7 @@ png(paste0("Manuscript files/figures/Traceplots/",
            "Ukr_Sold_killed_phat1_25k_1",
            suffix, ".png"), 
     width = 800, height = 600)
-plot(phat_1[,1])
+plot(phat_1[,1], cex.lab=1.5, cex.axis = 1.8)
 dev.off()
 # geweke
 set.seed(7)
@@ -351,7 +351,7 @@ png(paste0("Manuscript files/figures/Geweke_pvals/",
            "Ukr_Sold_killed_phat1_25k",
            suffix, ".png"), 
     width = 800, height = 600)
-hist(p_vals, main = '') # cf. sample traceplots --> non convergence for most 
+hist(p_vals, main = '', cex.lab=1.5, cex.axis = 1.8) # cf. sample traceplots --> non convergence for most 
 dev.off()
 
 # Sample OMCE 'Traceplot'
@@ -360,7 +360,7 @@ png(paste0("Manuscript files/figures/Traceplots/",
            "Ukr_Sold_killed_omce_25k_1",
            suffix, ".png"), 
     width = 800, height = 600)
-plot(omce[,1])
+plot(omce[,1], cex.lab=1.5, cex.axis = 1.8)
 dev.off()
 # geweke
 set.seed(7)
@@ -371,7 +371,7 @@ png(paste0("Manuscript files/figures/Geweke_pvals/",
            "Ukr_Sold_killed_omce_25k",
            suffix, ".png"), 
     width = 800, height = 600)
-hist(p_vals, main = '') # cf. sample traceplots --> non convergence for most 
+hist(p_vals, main = '', cex.lab=1.5, cex.axis = 1.8) # cf. sample traceplots --> non convergence for most 
 dev.off()
     
     
@@ -472,7 +472,7 @@ png(paste0("Manuscript files/figures/Traceplots/",
            "Sovereignity_phat0_Full_80088",
            suffix, ".png"), 
     width = 800, height = 600)
-plot(phat_0[,80088])
+plot(phat_0[,80088], cex.lab=1.5, cex.axis = 1.8)
 dev.off()
 # use BART's geweke diagnostic
 # --> calculates a z-score test of equality of means for the first
@@ -487,7 +487,7 @@ png(paste0("Manuscript files/figures/Geweke_pvals/",
            "Sovereignity_phat0_Full",
            suffix, ".png"), 
     width = 800, height = 600)
-hist(p_vals, main = '') # cf. sample traceplots --> non convergence for most 
+hist(p_vals, main = '', cex.lab=1.5, cex.axis = 1.8) # cf. sample traceplots --> non convergence for most 
 dev.off()
 
 # phat1
@@ -495,7 +495,7 @@ png(paste0("Manuscript files/figures/Traceplots/",
            "Sovereignity_phat1_EU_NATO_80088",
            suffix, ".png"), 
     width = 800, height = 600)
-plot(phat_1[,80088])
+plot(phat_1[,80088], cex.lab=1.5, cex.axis = 1.8)
 dev.off()
 # geweke
 set.seed(7)
@@ -506,7 +506,7 @@ png(paste0("Manuscript files/figures/Geweke_pvals/",
            "Sovereignity_phat1_EU_NATO",
            suffix, ".png"), 
     width = 800, height = 600)
-hist(p_vals, main = '') # cf. sample traceplots --> non convergence for most 
+hist(p_vals, main = '', cex.lab=1.5, cex.axis = 1.8) # cf. sample traceplots --> non convergence for most 
 dev.off()
 
 # Get sample OMCE 'Traceplot'
@@ -515,7 +515,7 @@ png(paste0("Manuscript files/figures/Traceplots/",
            "Sovereignity_omce_EU_NATO_80088",
            suffix, ".png"), 
     width = 800, height = 600)
-plot(omce[,80088])
+plot(omce[,80088], cex.lab=1.5, cex.axis = 1.8)
 dev.off()
 # geweke
 set.seed(7)
@@ -526,7 +526,7 @@ png(paste0("Manuscript files/figures/Geweke_pvals/",
            "Sovereignity_omce_EU_NATO",
            suffix, ".png"), 
     width = 800, height = 600)
-hist(p_vals, main = '') # cf. sample traceplots --> non convergence for most 
+hist(p_vals, main = '', cex.lab=1.5, cex.axis = 1.8) # cf. sample traceplots --> non convergence for most 
 dev.off()
 
 
