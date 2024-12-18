@@ -140,10 +140,10 @@ fit_cjbart_ext_large = cjbart(data = cj_tidy[, vars_ext],
                              round = "task", 
                              use_round = TRUE, 
                              seed = 99,
-                             nskip = 1000, # Burn-In instead of 100 (default)
+                             nskip = 2000, # Burn-In instead of 100 (default)
                              ndpost = 5000, # Posterior Draws instead of 1000
                              cores = 4)
-saveRDS(fit_cjbart_ext_large, "1c_Model_Objects/2024-12-17_fit_cjbart_ext_large.rds")
+# saveRDS(fit_cjbart_ext_large, "1c_Model_Objects/2024-12-17_fit_cjbart_ext_large.rds")
 fit_cjbart_ext_large <- readRDS("1c_Model_Objects/2024-12-17_fit_cjbart_ext_large.rds")
 
 

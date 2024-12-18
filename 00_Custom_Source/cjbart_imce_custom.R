@@ -1,4 +1,4 @@
-#' *TR: Create Functions needed later on*
+#' *Comment TR: Create Functions needed later on*
 
 # Convert character columns to factors with warning
 .char_to_fact <- function(data) {
@@ -58,7 +58,7 @@
 
 
 
-#' *TR: IMCE function as used later in the package*
+#' *Comment TR: IMCE function as used later in the package*
 #' Heterogeneous Effects Analysis of Conjoint Results
 #'
 #' @description \code{IMCE} calculates the individual-level marginal component effects from a BART-estimated conjoint model.
@@ -85,11 +85,12 @@
 #' @example inst/examples/basic_workflow.R
 #' @export
 
-#' *TR: Set Arguments for IMCE dry-run to extract trace plots*
+#' *Insert TR: Set Arguments for IMCE dry-run to extract trace plots*
 data = cj_tidy[, vars_ext]
 keep_omce = TRUE
-model = fit_cjbart_ext # standard model  
-model_large = fit_cjbart_ext_large 
+# model = fit_cjbart_ext # standard model  
+model = fit_cjbart_ext_large 
+large = T
       # 'larger' model for longer Burn-In and More Draws
       # nskip = 2000 (vs. 250), ndraws = 5000 (vs. 1000)
 attribs = c("Sold_killed_UKR"
@@ -116,8 +117,10 @@ method = 'rubin'
 cores = 4
 skip_checks = T
 
-# IMCE Dry Run 
-# with the IMCE function structure being opened 
+#' *Comment TR: Dry Run of IMCE function*
+#' *Comment TR: after drilling on the IMCE function*
+
+# IMCE = function(args){
 
 data <- as.data.frame(data)
 
@@ -220,8 +223,8 @@ out_levels <- c()
 
 for (i in 1:length(attribs)) {
   
-  # i=1 --> Ukr. Soldiers Killed 
-  # i=9 --> Sovereignity/Polit. Self. Determination
+  # i=1 # --> Ukr. Soldiers Killed 
+  i=9 # --> Sovereignity/Polit. Self. Determination
   
   message("Calculating OMCEs for attribute: ", attribs[i], " [",i,"/",length(attribs),"]")
   
@@ -298,21 +301,31 @@ for (i in 1:length(attribs)) {
     # stats::pnorm(colMeans(pred_0$yhat.test))
     
     # Plot and Save Traceplots of the Draws
+    # dynamically generate plot names
+    if (large == T){
+      suffix = '_large'
+    } else {
+      suffix = ''
+    }
+    
     # Attribute 1: Ukr. Soldiers. Killed (25,000 vs. 12,500)
     png(paste0("Manuscript files/figures/Traceplots/",
-               "Ukr_Sold_killed_phat0_12k_1.png"), 
+               "Ukr_Sold_killed_phat0_12k_1",
+               suffix, ".png"), 
         width = 800, height = 600)
     plot(phat_0[,1])
     dev.off()
     png(paste0("Manuscript files/figures/Traceplots/",
-               "Ukr_Sold_killed_phat0_25k_1.png"), 
+               "Ukr_Sold_killed_phat0_25k_1",
+               suffix, ".png"), 
         width = 800, height = 600)
     plot(phat_1[,1])
     dev.off()
     # Get sample OMCE 'Traceplot'
     omce_1 = phat_1[,1] - phat_0[,1] 
     png(paste0("Manuscript files/figures/Traceplots/",
-               "Ukr_Sold_killed_omce_25k_1.png"), 
+               "Ukr_Sold_killed_omce_25k_1",
+               suffix, ".png"), 
         width = 800, height = 600)
     plot(omce_1)
     dev.off()
@@ -320,19 +333,22 @@ for (i in 1:length(attribs)) {
     # Plot and Save Traceplots of the Draws
     # Attribute 9: Sovereignity (Full vs. EU/NATO)
     png(paste0("Manuscript files/figures/Traceplots/",
-               "Sovereignity_phat0_Full_80088.png"), 
+               "Sovereignity_phat0_Full_80088",
+               suffix, ".png"), 
         width = 800, height = 600)
     plot(phat_0[,80088])
     dev.off()
     png(paste0("Manuscript files/figures/Traceplots/",
-               "Sovereignity_phat1_EU_NATO_80088.png"), 
+               "Sovereignity_phat1_EU_NATO_80088",
+               suffix, ".png"), 
         width = 800, height = 600)
     plot(phat_1[,80088])
     dev.off()
     # Get sample OMCE 'Traceplot'
     omce_80088 = phat_1[,80088] - phat_0[,80088] 
     png(paste0("Manuscript files/figures/Traceplots/",
-               "Sovereignity_omce_EU_NATO_80088.png"), 
+               "Sovereignity_omce_EU_NATO_80088",
+               suffix, ".png"), 
         width = 800, height = 600)
     plot(omce_80088)
     dev.off()
