@@ -63,19 +63,7 @@ colnames(cj_tidy)[which(colnames(cj_tidy) %in% c(paste0("attr",1:9)))] <-
     "Polit_Self_Det_UKR")
 
 
-#####' *Select variables of interest for the 2 different models*
-# reduced set of covars 
-vars_red = c(
-  # General variables
-  'y', 'c_id', 'task',
-  # Attributes
-  "Sold_killed_UKR", "Sold_killed_RUS", "Civ_killed_UKR",
-  "Infra_Destr_UKR", "Perc_GDP_milit", "Perc_GDP_econ",
-  "Risk_Nuke", "Territ_Cession", "Polit_Self_Det_UKR", 
-  # Covariates
-  'Country', 'age', 'gender', 'leftright3'
-  )
-
+#####' *Select variables of interest*
 vars_ext = c(
   # General variables
   'y', 'c_id', 
@@ -93,27 +81,10 @@ vars_ext = c(
 
 
 
-#####' *Fit the models*
-### Fit the reduced model
-set.seed(13.9238239)
-
-# function has default seed 99 implented 
-fit_cjbart_red = cjbart(data = cj_tidy[, vars_red], 
-                        Y = "y",
-                        type = "choice", 
-                        id = "c_id", 
-                        round = "task", 
-                        use_round = TRUE, 
-                        cores = 4,
-                        seed = 99)
-
-# saveRDS(fit_cjbart_red, "1c_Model_Objects/2024-11-18_fit_cjbart_red_2.rds")
-fit_cjbart_red <- readRDS("1c_Model_Objects/2024-11-18_fit_cjbart_red.rds")
-
-
-### Fit the extended model
+#####' *Fit the model*
+# function has default seed 99 implemented 
 # set.seed(123)
-fit_cjbart_ext_s123 = cjbart(data = cj_tidy[, vars_ext], 
+fit_cjbart_ext = cjbart(data = cj_tidy[, vars_ext], 
                         Y = "y",
                         # type = "choice", 
                         id = "c_id", 
@@ -122,16 +93,12 @@ fit_cjbart_ext_s123 = cjbart(data = cj_tidy[, vars_ext],
                         seed = 123,
                         cores = 4)
 
-
-
-# sNumber provides the seed, cNumber provides the cores used 
-# these 2 numbers determine the randomness in the BART tree building 
-# saveRDS(fit_cjbart_ext6_noround, "1c_Model_Objects/2024-11-18_fit_cjbart_ext6_noround.rds")
+# sNumber provides the seed --> determines randomness in the BART tree growing 
+# saveRDS(fit_cjbart_ext, "1c_Model_Objects/2024-11-18_fit_cjbart_ext.rds")
 fit_cjbart_ext <- readRDS("1c_Model_Objects/2024-11-18_fit_cjbart_ext.rds")
 
 
-
-#' *Fit extended model with larger (non-default) Burn-In/Draws for*
+#' *Fit model with larger (non-default) Burn-In/Draws for*
 #' *extended converegence assessment*
 fit_cjbart_ext_large = cjbart(data = cj_tidy[, vars_ext], 
                              Y = "y",
@@ -147,8 +114,9 @@ fit_cjbart_ext_large = cjbart(data = cj_tidy[, vars_ext],
 fit_cjbart_ext_large <- readRDS("1c_Model_Objects/2024-12-17_fit_cjbart_ext_large.rds")
 
 
-
-#' *Fit the model with the custom as-if-non-unix cjbart function*
+#' *Fit model with the custom as-if-non-unix cjbart function*
+# Function always uses the if UNIX == FALSE code 
+# --> No parallelization & dependence of the external seed that is set 
 source('00_Custom_Source/cjbart_custom.R')
 set.seed(42)
 cfit_cjbart_es42_is123_v1 = cjbart_custom(data = cj_tidy[, vars_ext], 
@@ -161,46 +129,13 @@ cfit_cjbart_es42_is123_v1 = cjbart_custom(data = cj_tidy[, vars_ext],
                              cores = 4)
 # saveRDS(cfit_cjbart_es42_is123_v1,
 #         '1c_Model_Objects/2024-11-18_cfit_cjbart_es42_is123_v1.rds')
-cfit_cjbart_es42_is123_v1 = 
-  readRDS('1c_Model_Objects/2024-11-18_cfit_cjbart_es42_is123_v1.rds')
-rm(cfit_cjbart_es42_is123_v1)
+# cfit_cjbart_es42_is123_v1 = 
+#   readRDS('1c_Model_Objects/2024-11-18_cfit_cjbart_es42_is123_v1.rds')
+
 
 
 #####' *Get IMCEs*
-### Get IMCEs for the reduced model
-imces_red <- IMCE(data = cj_tidy[, vars_red], 
-              keep_omce = TRUE,
-              model = fit_cjbart_red, 
-              attribs = c("Sold_killed_UKR"
-                          , "Sold_killed_RUS"
-                          , "Civ_killed_UKR"
-                          , "Infra_Destr_UKR"
-                          , "Perc_GDP_milit"
-                          , "Perc_GDP_econ"
-                          , "Risk_Nuke"
-                          , "Territ_Cession"
-                          , "Polit_Self_Det_UKR"
-                          ), 
-              ref_levels = c('12,500'
-                             , '25,000.'
-                             , '4,000'
-                             , '50B'
-                             , '0.1% of GDP'
-                             , '0.1% of GDP.'
-                             , 'Not present (0%)'
-                             , 'None'
-                             , 'Full'
-                             )
-              # ,method = 'parametric'
-              , cores = 4
-)
-
-# saveRDS(imces_red, "1c_Model_Objects/2024-11-18_imces_red_2.rds")
-imces_red <- readRDS("1c_Model_Objects/2024-11-18_imces_red_2.rds")
-
-
-
-### Get IMCEs for the extended model
+### Get IMCEs for the cjbart model
 imces_ext <- IMCE(data = cj_tidy[, vars_ext], 
                   keep_omce = TRUE,
                   model = fit_cjbart_ext, 
@@ -235,7 +170,7 @@ imces_ext <- readRDS("1c_Model_Objects/2024-11-18_imces_ext.rds")
 
 
 
-# Get AMCEs
+#####' *Get AMCEs*
 amces_ext <- AMCE(cj_tidy[, vars_ext], 
               model = fit_cjbart_ext,
               attribs = c("Sold_killed_UKR"
@@ -276,12 +211,7 @@ plot_data <- data.frame(amces_ext$amces$attribute,
                         amces_ext$amces$AMCE_upper)
 colnames(plot_data) <- c('Attribute', 'Level', 'AMCE', 'Lower', 'Upper')
 
-# Create a combined label for Y-axis
-plot_data <- plot_data %>%
-  mutate(AttributeLevel = paste(Attribute, Level, sep = " - "))
-
-
-# Define baseline levels with IMCE = 0
+# Define reference levels (--> IMCE = 0)
 baseline_levels <- data.frame(
   Attribute = c("Sold_killed_UKR", "Sold_killed_RUS", "Civ_killed_UKR",
                 "Infra_Destr_UKR", "Perc_GDP_milit", "Perc_GDP_econ",
@@ -298,7 +228,7 @@ plot_data <- plot_data %>%
   bind_rows(baseline_levels)
 
 
-# Create the desired order data frame
+# Create the desired order for plotting
 desired_orders_df <- data.frame(
   Attribute = c(rep("Sold_killed_UKR", 3),
                 rep("Sold_killed_RUS", 3),
@@ -328,25 +258,12 @@ desired_orders_df <- data.frame(
 plot_data <- plot_data %>%
   left_join(desired_orders_df, by = c("Attribute", "Level"))
 
-# plot_data <- plot_data[order(plot_data$global_order), ]
-plot_data
+# order the attributes accordingly
+plot_data$Attribute = factor(plot_data$Attribute, 
+                             levels = unique(plot_data$Attribute[order(
+                               plot_data$attribute_order)]))
 
-
-# Update the AttributeLevel for the baselines
-# plot_data <- plot_data %>%
-#   mutate(AttributeLevel = paste(Attribute, Level, sep = " - "))
-
-# Reorder AttributeLevel factor based on updated global_order
-# plot_data$AttributeLevel <- factor(plot_data$AttributeLevel, levels = plot_data$AttributeLevel[order(-plot_data$global_order)])
-# plot_data <- plot_data[order(plot_data$global_order), ]
-
-# plot_data_legacy <- plot_data
-# plot_data <- plot_data_legacy
-
-# order the attributes 
-plot_data$Attribute = factor(plot_data$Attribute, levels = unique(plot_data$Attribute[order(plot_data$attribute_order)]))
-
-
+# Change Labels 
 custom_labels <- c(
   "Sold_killed_UKR" = "Ukrainian military casualties",
   "Sold_killed_RUS" = "Russian military casualties",
@@ -359,7 +276,9 @@ custom_labels <- c(
   "Polit_Self_Det_UKR" = "Sovereignity"
 )
 
-plot_data$Level <- factor(plot_data$Level, levels = rev(plot_data$Level[order(plot_data$global_order)]))
+plot_data$Level <- factor(plot_data$Level, 
+                          levels = rev(plot_data$Level[order(
+                            plot_data$global_order)]))
 
 
 # Plot with baselines included
@@ -367,7 +286,6 @@ ggplot(plot_data, aes(x = AMCE,
                       y = Level,
                       color = Attribute)) +
   geom_vline(xintercept = 0) +
-  # facet_col(.~Attribute) + 
   geom_point(size = 2) +
   geom_errorbarh(aes(xmin = Lower, xmax = Upper), 
                  height = 0.5, 
@@ -406,18 +324,6 @@ ggsave('Manuscript files/figures/AMCEs_as_cjbart.png', width = 12, height = 8)
 
 
 #####' *Get Variable Importances*
-### For the reduced model
-covars_of_interest_red <- c("Country", "age", "gender", "leftright3")
-
-var_imps_red <- het_vimp(imces = imces_red, 
-                         covars = covars_of_interest_red, 
-                         cores = 4)
-
-saveRDS(var_imps_red, "1c_Model_Objects/2024-11-18_var_imps_red_2.rds")
-var_imps_red <- readRDS("1c_Model_Objects/2024-11-18_var_imps_red.rds")
-
-
-### for the extended model
 covars_of_interest_ext <- c("Country", "age", "gender", "leftright3"
                             # additional covariates
                             ,"QV_Ukraine", "q3_3", "Q5", "q1617_USA",
@@ -428,7 +334,7 @@ var_imps_ext <- het_vimp(imces = imces_ext,
                          covars = covars_of_interest_ext, 
                          cores = 4)
 
-saveRDS(var_imps_ext, "1c_Model_Objects/2024-11-18_var_imps_ext_2.rds")
+# saveRDS(var_imps_ext, "1c_Model_Objects/2024-11-18_var_imps_ext.rds")
 var_imps_ext <- readRDS("1c_Model_Objects/2024-11-18_var_imps_ext.rds")
 
 
@@ -436,15 +342,13 @@ var_imps_ext <- readRDS("1c_Model_Objects/2024-11-18_var_imps_ext.rds")
 
 
 #####' *Plot Variable Importances*
-### Plot with off-the-shelf function included in package (as in Paper)
-# plot(var_imps_red)
-# plot(var_imps_ext)
-
 var_imps_ext <- readRDS("1c_Model_Objects/2024-11-18_var_imps_ext.rds")
 
+### Plot with off-the-shelf function included in package (as in Paper)
+# plot(var_imps_ext) # not satisfactory 
+
 #### Custom plot (prettier)
-# plot_data <- var_imps_red$results # reduced covariate set
-plot_data <- var_imps_ext$results # extended covariate set
+plot_data <- var_imps_ext$results 
 
 # Generate Custom Plot Attribute Labels with Line Breaks
 custom_labels <- c("Sold_killed_UKR" = "Sold\nkilled\nUKR", 
@@ -457,56 +361,26 @@ custom_labels <- c("Sold_killed_UKR" = "Sold\nkilled\nUKR",
                    "Territ_Cession" = "Territ\nCession", 
                    "Polit_Self_Det_UKR" = "Polit\nSD\nUKR")
 
-# Rename Covariates with proper Caps 
+# Rename Covariates with proper Capitalization 
 plot_data[which(plot_data$covar == 'age'), 'covar'] <- "Age"
 plot_data[which(plot_data$covar == 'gender'), 'covar'] <- "Gender"
 plot_data[which(plot_data$covar == 'leftright3'), 'covar'] <- "Left-Right-3"
 
 # Rename Questionnaire Covariates
-plot_data[which(plot_data$covar == 'Q5'), 'covar'] <- "Weapons matter\nfor election 4"  # 
-plot_data[which(plot_data$covar == 'q10_2'), 'covar'] <- "Anti Weapon\ndeliveries 7"# 
-plot_data[which(plot_data$covar == 'q10_6'), 'covar'] <- "General Weapon\nfor defense 7"# 
-plot_data[which(plot_data$covar == 'q10_8'), 'covar'] <- "Weapons if\nciv. casualties  7"#
+plot_data[which(plot_data$covar == 'Q5'), 'covar'] <- "Weapons matter\nfor election 4"  
+plot_data[which(plot_data$covar == 'q10_2'), 'covar'] <- "Anti Weapon\ndeliveries 7"
+plot_data[which(plot_data$covar == 'q10_6'), 'covar'] <- "General Weapon\nfor defense 7"
+plot_data[which(plot_data$covar == 'q10_8'), 'covar'] <- "Weapons if\nciv. casualties  7"
 plot_data[which(plot_data$covar == 'q10_10'), 'covar'] <- "Weapons if\n infra. destr. 7"
-plot_data[which(plot_data$covar == 'Q11'), 'covar'] <- "Anti Nato 5"  # 
-plot_data[which(plot_data$covar == 'q1617_RUS'), 'covar'] <- "Empathy RUS 7"  # 
-plot_data[which(plot_data$covar == 'q1617_USA'), 'covar'] <- "Anti USA 7"  # 
-plot_data[which(plot_data$covar == 'QV_Ukraine'), 'covar'] <- "Political Agenda:\nWar Ukraine 7"  # 
+plot_data[which(plot_data$covar == 'Q11'), 'covar'] <- "Anti Nato 5"  
+plot_data[which(plot_data$covar == 'q1617_RUS'), 'covar'] <- "Empathy RUS 7"  
+plot_data[which(plot_data$covar == 'q1617_USA'), 'covar'] <- "Anti USA 7"  
+plot_data[which(plot_data$covar == 'QV_Ukraine'), 'covar'] <- "Political Agenda:\nWar Ukraine 7"  
 plot_data[which(plot_data$covar == 'q3_3'), 'covar'] <- "Scared\nby War 7"
 plot_data[which(plot_data$covar == 'Q15_1'), 'covar'] <- "for Peace 01:\nUKR NATO Waiver"
 plot_data[which(plot_data$covar == 'Q15_7'), 'covar'] <- "for Peace 01:\nNo Concessions"
 
-# Rename additional covars 
-# Q10_10
-# Wenn ein Land militärisch angegriffen wird (ohne eigenes Verschulden), 
-# und der Angreifer ihm einen Teil seines Landes wegnimmt, 
-# sollte {COUNTRY} dieses Land mit Waffenlieferungen unterstützen.
-# 7er Likert: 1 (Stimme überhaupt nicht zu) bis 7 (Stimme vollständig zu)
-
-
-# Q3_3
-# Wie viel Angst macht Ihnen, wenn überhaupt, 
-# der Angriff Russlands auf die Ukraine?“ 
-# 7er Likert: 1 (überhaupt keine Angst) bis 7 (sehr große Angst)
-
-
-# Q15:
-# Wenn dadurch ein Friedensabkommen mit Russland möglich wäre: 
-# Sollte die Ukraine eine oder mehrere der 
-# unten genannten Zugeständnisse machen?“ 
-# Q15_1
-# "Auf eine NATO-Mitgliedschaft verzichten“  (binary choice)
-
-# Q15_7:
-# Q15_7: "Gar keine Zugeständnisse machen“  (binary choice)
-# plot_data[which(plot_data$covar == 'q10_10'), 'covar'] <- "general_weapon\nas_revenge_7"
-# plot_data[which(plot_data$covar == 'q3_3'), 'covar'] <- "scared_by\ninvasion_7"
-# plot_data[which(plot_data$covar == 'Q15_1'), 'covar'] <- "ukr_nato_waiver\nfor_peace_binary"
-# plot_data[which(plot_data$covar == 'Q15_7'), 'covar'] <- "no_concessions\nfor_peace_binary"
-
-
-
-
+# Set desired Attribute order for plotting
 desired_orders_df <- data.frame(
   Attribute = c(rep("Sold_killed_UKR", 2),
                 rep("Sold_killed_RUS", 2),
@@ -548,7 +422,7 @@ desired_orders_df <- data.frame(
                    1,2)
 )
 
-
+# Set desired covariate order for plotting
 desired_covar_order <- c("Age", "Gender", "Country", "Left-Right-3", 
                          "Weapons matter\nfor election 4", 
                          "Anti Weapon\ndeliveries 7",
@@ -572,12 +446,13 @@ plot_data <- merge(plot_data,
 # Reorder levels within each Attribute
 plot_data <- plot_data %>%
   mutate(
-    Level_ordered = factor(Level, levels = unique(Level[order(order_levels)])), # order by 'order_levels'
-    Attribute = factor(Attribute, levels = unique(Attribute[order(order_attributes)])), # order by order_attributes
-    covar = factor(covar, levels = desired_covar_order)
+    Level_ordered = factor(Level, 
+                           levels = unique(Level[order(order_levels)])),
+    Attribute = factor(Attribute, 
+                       levels = unique(Attribute[order(order_attributes)])), 
+    covar = factor(covar, 
+                   levels = desired_covar_order)
   )
-
-
 
 
 # Plot 
@@ -592,8 +467,6 @@ ggplot(plot_data,
              labeller = labeller(Attribute = custom_labels)) +
   geom_tile() +
   scale_y_reordered() +
-  # scale_x_discrete(labels = scales::label_wrap(10)) + 
-  # scale_x_discrete(guide = guide_axis(n.dodge = 5)) +
   scale_fill_gradient(low="white", high="firebrick1") +
   labs(x = "Covariates", 
        y = "Attribute Level", 
@@ -616,17 +489,14 @@ ggplot(plot_data,
         legend.title = element_text(size = 15)
         )
 
-
-# ggsave('1d_Plots/RF_VarImps_red.png')
-ggsave('Manuscript files/figures/RF_VarImps_ext_v4.png')
+ggsave('Manuscript files/figures/RF_VarImps_ext.png')
 
 
 
 
 
 
-#####' *Fit single decision trees for interpretation*
-imces_red <- readRDS("1c_Model_Objects/2024-11-18_imces_red.rds")
+#####' *Fit and plot single decision trees for interpretation*
 imces_ext <- readRDS("1c_Model_Objects/2024-11-18_imces_ext.rds")
 
 # custom node function to prefent scientific notation in rpart.plot()
@@ -634,12 +504,11 @@ node_fun <- function(x, labs, digits, varlen) {
   # Calculate the proportion of units in the node
   total_units <- fit$frame$n[1]  # Total number of units (= n of root node)
   proportions <- (x$frame$n / total_units) * 100  # Convert to percentage
-  
   # Format the node label with value and proportion
   sprintf("%.4f\n%.0f%%", x$frame$yval, proportions)  # 4 decimals for value, 1 decimal for percentage
 }
 
-# custom function needed for generating plot titles 
+# custom function that can be used for generating plot titles 
 find_attr = function(attribute_level = NULL){
   if (is.null(attribute_level)) {
     print('No attribute level provided.')
@@ -677,14 +546,17 @@ colnames(imces_ext$imce) <- ifelse(
 )
 
 
-### Single IMCE Prediction Decision Trees for Associations of Interest
-# IMCE Trees in Paper 
+###' *Single IMCE Prediction Decision Trees for Associations of Interest*
+###' 
+# IMCE Trees used in Final Presentation / Report 
 #' *Civilians_killed_Ukraine (16k vs. 4k)*
-fit <- rpart::rpart(formula = `16,000` ~ Country + Age + Gender + `Left-Right-3` + `for Peace 01: No Concessions`,
+fit <- rpart::rpart(formula = `16,000` ~ Country + Age + Gender + 
+                      `Left-Right-3` + `for Peace 01: No Concessions`,
                     imces_ext$imce
-                    , control = rpart.control(cp = 0.02)  # complexity param, default = 0.01, larger --> less complex 
+                    # complexity param, default = 0.01, larger --> less complex 
+                    , control = rpart.control(cp = 0.02)  
 ) 
-printcp(fit) # how many splits with which cp
+printcp(fit) 
 png("Manuscript files/figures/DecTree_ext_Civ_killed_Ukr_16k.png", width = 800, height = 600)
 rpart.plot(fit, node.fun = node_fun, cex = 1.55, tweak = 2, 
            # , main = paste('Target: IMCEs of', find_attr(fit$terms[[2]]), '=',  fit$terms[[2]])
@@ -732,47 +604,51 @@ dev.off()
 
 
 
-
-
-####' *Additional Trees for exploration*
+####' *Additional Trees for exploration - Not in Presentation / Report*
 # Sanity Check Infstructure Destroyed 100B
 fit <- rpart::rpart(formula = `100B` ~ Country + Age + Gender + `Left-Right-3` + 
                       `for Peace 01: No Concessions` + 
                       `Weapons if infra. destr. 7`,
                     imces_ext$imce
-                    , control = rpart.control(cp = 0.04)  # complexity param, default = 0.01, larger --> less complex 
+                    , control = rpart.control(cp = 0.02)  # complexity param, default = 0.01, larger --> less complex 
 ) 
 rpart.plot(fit, node.fun = node_fun, cex = 1.1, tweak = 2.8, 
-           # , main = paste('Target: IMCEs of', find_attr(fit$terms[[2]]), '=',  fit$terms[[2]])
+           , main = paste('Target: IMCEs of', find_attr(fit$terms[[2]]), '=', fit$terms[[2]])
 )
 
 # Ukrainian Soldiers killed (50k)
-fit <- rpart::rpart(formula = `50,000` ~ Country + Age + Gender + `Left-Right-3` + `for Peace 01: No Concessions` + `Weapons if infra. destr. 7`,
+fit <- rpart::rpart(formula = `50,000` ~ Country + Age + Gender + 
+                      `Left-Right-3` + `for Peace 01: No Concessions` + 
+                      `Weapons if infra. destr. 7`,
                     imces_ext$imce
                     , control = rpart.control(cp = 0.04)  # complexity param, default = 0.01, larger --> less complex 
 ) 
 rpart.plot(fit, node.fun = node_fun, cex = 0.8, tweak = 2.8, 
-           # , main = paste('Target: IMCEs of', find_attr(fit$terms[[2]]), '=',  fit$terms[[2]])
+           , main = paste('Target: IMCEs of', find_attr(fit$terms[[2]]), '=',  fit$terms[[2]])
 )
 
 # Ukrainian Soldiers killed (25k)
-fit <- rpart::rpart(formula = `25,000` ~ Country + Age + Gender + `Left-Right-3` + `for Peace 01: No Concessions` + `Weapons if infra. destr. 7`,
+fit <- rpart::rpart(formula = `25,000` ~ Country + Age + Gender + 
+                      `Left-Right-3` + `for Peace 01: No Concessions` + 
+                      `Weapons if infra. destr. 7`,
                     imces_ext$imce
                     , control = rpart.control(cp = 0.04)  # complexity param, default = 0.01, larger --> less complex 
 ) 
 rpart.plot(fit, node.fun = node_fun, cex = 1.1, tweak = 2.8, 
-           # , main = paste('Target: IMCEs of', find_attr(fit$terms[[2]]), '=',  fit$terms[[2]])
+           , main = paste('Target: IMCEs of', find_attr(fit$terms[[2]]), '=',  fit$terms[[2]])
 )
 
 
 
 # Infrastructure destroyed 200B
-fit <- rpart::rpart(formula = `200B` ~ Country + Age + Gender + `Left-Right-3` + `for Peace 01: No Concessions` + `Weapons if infra. destr. 7`,
+fit <- rpart::rpart(formula = `200B` ~ Country + Age + Gender + `Left-Right-3` +
+                      `for Peace 01: No Concessions` + 
+                      `Weapons if infra. destr. 7`,
                     imces_ext$imce
                     , control = rpart.control(cp = 0.06)  # complexity param, default = 0.01, larger --> less complex 
 ) 
 rpart.plot(fit, node.fun = node_fun, cex = 0.95, tweak = 3, 
-           # , main = paste('Target: IMCEs of', find_attr(fit$terms[[2]]), '=',  fit$terms[[2]])
+           , main = paste('Target: IMCEs of', find_attr(fit$terms[[2]]), '=',  fit$terms[[2]])
 )
 
 
@@ -780,38 +656,7 @@ rpart.plot(fit, node.fun = node_fun, cex = 0.95, tweak = 3,
 
 
 
-# IMCEs of 100,000 RUS Sold. killed (vs. reference: 25,000)
-fit <- rpart::rpart(formula = `100,000` ~ Country + age + gender + leftright3,
-                    imces_red$imce
-                    , control = rpart.control(cp = 0.01)  # complexity param, default = 0.01, larger --> less complex 
-                    ) 
-rpart.plot(fit, node.fun = node_fun, 
-           main = paste('Target: IMCEs of', find_attr(fit$terms[[2]]), '=',  fit$terms[[2]]))
-
-#' *Only one really interesting*
-# same as obove with extended 
-fit <- rpart::rpart(formula = `100,000` ~ Country + age + gender + leftright3 + Q15_7,
-                    imces_ext$imce
-                    , control = rpart.control(cp = 0.04)  # complexity param, default = 0.01, larger --> less complex 
-) 
-rpart.plot(fit, node.fun = node_fun, 
-           main = paste('Target: IMCEs of', find_attr(fit$terms[[2]]), '=',  fit$terms[[2]]))
-
-# RUS Soldiers Killed 50k (vs. 25k)
-fit <- rpart::rpart(formula = `50,000.` ~ Country + age + gender + leftright3,
-                    imces_red$imce
-                    , control = rpart.control(cp = 0.01)
-                    )
-rpart.plot(fit, node.fun = node_fun, 
-           main = paste('Target: IMCEs of', find_attr(fit$terms[[2]]), '=',  fit$terms[[2]]))
-
-
-
-
-
-
-
-#### Additionally Calculate Marginal Means 
+###' * Additionally Calculate Marginal Means using the cregg package*
 library(cregg)
 mm = cregg::cj(data = cj_tidy,
               y ~ Sold_killed_UKR + Sold_killed_RUS + Civ_killed_UKR + 
@@ -821,7 +666,7 @@ mm = cregg::cj(data = cj_tidy,
               estimate = "mm",
               level_order = "descending") 
 
-### Plot MMs 
+# Plot Marginal Means
 ggplot(data = mm, 
        aes(x = fct_inorder(level), y = estimate)) +
   theme_bw() +
@@ -829,10 +674,20 @@ ggplot(data = mm,
   geom_pointrange(aes(ymin = lower, ymax = upper, color = feature), shape=16) + 
   geom_hline(yintercept = 0.5, color = "grey") + 
   coord_flip() +
-  facet_wrap(~feature, ncol = 1L, scales = "free_y", strip.position = "right", 
-             labeller = label_wrap_gen(10)) +
+  facet_wrap(~feature, ncol = 1L, scales = "free_y", 
+             strip.position = "top") +
   labs(y="Marginal Means",x="") + 
-  theme(strip.text.y.right = element_text(angle = 0), legend.position = "none")
+  theme(strip.text.y.right = element_text(angle = 0), 
+        axis.text.y = element_text(size = 11),
+        axis.text.x = element_text(size = 12),
+        axis.title.x = element_text(face = 'bold', size = 12),
+        strip.text = element_text(face = "bold", 
+                                  margin = margin(t = 2, b = 2),
+                                  size = rel(1), 
+                                  hjust = 0.01),
+        legend.position = "none")
+
+ggsave('Manuscript files/figures/cregg_MarginalMeans.png')
 
 
 # Country Subgroup MMs 
@@ -857,12 +712,19 @@ ggplot(data = mm_by_country,
                   position = position_dodge(width = 0.5)) + 
   geom_hline(yintercept = 0.5, color = "grey") + 
   coord_flip() +
-  facet_wrap(~feature, ncol = 1, scales = "free_y", strip.position = "right",
-             labeller = label_wrap_gen(10)) +
+  facet_wrap(~feature, ncol = 1L, scales = "free_y", 
+             strip.position = "top") +
   labs(y="Marginal Means", x="", color="Country") + 
-  theme(axis.text.y = element_text(size = 10),
-        legend.text = element_text(size = 10),
-        strip.text.y.right = element_text(angle = 0))
+  theme(axis.text.y = element_text(size = 11),
+        axis.text.x = element_text(size = 11),
+        axis.title.x = element_text(face = 'bold', size = 11),
+        legend.text = element_text(size = 11),
+        strip.text = element_text(face = "bold", 
+                                  margin = margin(t = 2, b = 2),
+                                  size = rel(1), 
+                                  hjust = 0.01))
+
+ggsave('Manuscript files/figures/cregg_MarginalMeans_CountrySubgroups.png')
 
 
 
@@ -880,13 +742,21 @@ amce <- cregg::cj(data = cj_tidy,
 ggplot(data = amce,
          aes(x = fct_inorder(level), y = estimate)) +
   theme_bw() +
-  ylim(-0.3, 0.1) +
+  ylim(-0.15, 0.05) +
   geom_pointrange(aes(ymin = lower, ymax = upper, color = feature), shape=16) +
   geom_hline(yintercept = 0, color = "grey") +
   coord_flip() +
-  facet_wrap(~feature, ncol = 1L, scales = "free_y", strip.position = "right",
-             labeller = label_wrap_gen(10)) +
+  facet_wrap(~feature, ncol = 1L, scales = "free_y", 
+             strip.position = "top") +
   labs(y="Average Marginal Component Effect (AMCE)",
        x="") +
-  theme(strip.text.y.right = element_text(angle = 0),
+  theme(axis.text.y = element_text(size = 11),
+        axis.text.x = element_text(size = 11),
+        axis.title.x = element_text(face = 'bold', size = 11),
+        strip.text = element_text(face = "bold", 
+                                   margin = margin(t = 2, b = 2),
+                                   size = rel(1), 
+                                   hjust = 0.01),
         legend.position = "none")
+
+ggsave('Manuscript files/figures/cregg_AMCEs.png')

@@ -64,7 +64,7 @@ colnames(cj_tidy)[which(colnames(cj_tidy) %in% c(paste0("attr",1:9)))] <-
 
 
 
-#####' *Select variables of interest for the 2 different models*
+#####' *Select variables of interest for the model*
 vars_ext = c(
   # General variables
   'y', 'c_id', 
@@ -87,7 +87,7 @@ no_of_cores = parallel::detectCores()
 no_iterations = 11:20 # be careful as the fit objects has ~1GB 
 
 # Set Seeds for the iterations
-# seeds = round(runif(20,1,1000),0)
+# seeds = round(runif(20,1,1000),0) # used to determine random seeds
 seeds = c(79, 27, 340, 508, 43,
           157, 886, 918, 70, 972,
           373, 960, 999, 826, 984,
