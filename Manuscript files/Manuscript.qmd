@@ -297,7 +297,7 @@ These AMCEs are supplemented with the AMCEs reported in the original article by 
 @fig-varimps-ext displays the variable importance measures for the subject-level covariates as extracted from the cjbart model. 
 Variable importances are colorized using heatmap-like colorcoding with stronger red (vs. white) color indicating larger importance measures. 
 
-![Ext VarImps](figures/RF_VarImps_ext_v4.png){#fig-varimps-ext}
+![Ext VarImps](figures/RF_VarImps_ext.png){#fig-varimps-ext}
 
 @fig-imagepanel depicts 4 exemplary decision trees that were fit to better understand how different subject level covariates contribute to effect heterogeneity. 
 These decision trees were selected based on content-related and interpretational criteria and to highlight how single decision tress can be utilized for model interpretation.  
