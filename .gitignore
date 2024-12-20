@@ -8,15 +8,10 @@
 
 # Model Objects
 1c_Model_Objects/
-
-# Plots 
-Rplot.png
+1b_robustness_objects/
 
 # Manuscript Files
 manuscript.pdf
-
-# Model Objects for the Robustness Check
-1b1_objects/
 
 # Archive folder 
 000_archive/

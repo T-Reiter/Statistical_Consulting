@@ -94,8 +94,8 @@ fit_cjbart_ext = cjbart(data = cj_tidy[, vars_ext],
                         cores = 4)
 
 # sNumber provides the seed --> determines randomness in the BART tree growing 
-# saveRDS(fit_cjbart_ext, "1c_Model_Objects/2024-11-18_fit_cjbart_ext.rds")
-fit_cjbart_ext <- readRDS("1c_Model_Objects/2024-11-18_fit_cjbart_ext.rds")
+# saveRDS(fit_cjbart_ext, "1b_Model_Objects/2024-11-18_fit_cjbart_ext.rds")
+fit_cjbart_ext <- readRDS("1b_Model_Objects/2024-11-18_fit_cjbart_ext.rds")
 
 
 #' *Fit model with larger (non-default) Burn-In/Draws for*
@@ -110,8 +110,8 @@ fit_cjbart_ext_large = cjbart(data = cj_tidy[, vars_ext],
                              nskip = 2000, # Burn-In instead of 100 (default)
                              ndpost = 5000, # Posterior Draws instead of 1000
                              cores = 4)
-# saveRDS(fit_cjbart_ext_large, "1c_Model_Objects/2024-12-17_fit_cjbart_ext_large.rds")
-fit_cjbart_ext_large <- readRDS("1c_Model_Objects/2024-12-17_fit_cjbart_ext_large.rds")
+# saveRDS(fit_cjbart_ext_large, "1b_Model_Objects/2024-12-17_fit_cjbart_ext_large.rds")
+fit_cjbart_ext_large <- readRDS("1b_Model_Objects/2024-12-17_fit_cjbart_ext_large.rds")
 
 
 #' *Fit model with the custom as-if-non-unix cjbart function*
@@ -128,9 +128,9 @@ cfit_cjbart_es42_is123_v1 = cjbart_custom(data = cj_tidy[, vars_ext],
                              seed = 123, # returns warning --> no seed needed
                              cores = 4)
 # saveRDS(cfit_cjbart_es42_is123_v1,
-#         '1c_Model_Objects/2024-11-18_cfit_cjbart_es42_is123_v1.rds')
+#         '1b_Model_Objects/2024-11-18_cfit_cjbart_es42_is123_v1.rds')
 # cfit_cjbart_es42_is123_v1 = 
-#   readRDS('1c_Model_Objects/2024-11-18_cfit_cjbart_es42_is123_v1.rds')
+#   readRDS('1b_Model_Objects/2024-11-18_cfit_cjbart_es42_is123_v1.rds')
 
 
 
@@ -164,8 +164,8 @@ imces_ext <- IMCE(data = cj_tidy[, vars_ext],
 )
 summary.cjbart(imces_ext)
 
-# saveRDS(imces_ext, "1c_Model_Objects/2024-11-18_imces_ext_2.rds")
-imces_ext <- readRDS("1c_Model_Objects/2024-11-18_imces_ext.rds")
+# saveRDS(imces_ext, "1b_Model_Objects/2024-11-18_imces_ext_2.rds")
+imces_ext <- readRDS("1b_Model_Objects/2024-11-18_imces_ext.rds")
 
 
 
@@ -196,13 +196,13 @@ amces_ext <- AMCE(cj_tidy[, vars_ext],
               alpha = 0.05,
               cores = 4)
 
-# saveRDS(amces_ext, "1c_Model_Objects/2024-11-18_amces_ext.rds")
-amces_ext <- readRDS("1c_Model_Objects/2024-11-18_amces_ext.rds")
+# saveRDS(amces_ext, "1b_Model_Objects/2024-11-18_amces_ext.rds")
+amces_ext <- readRDS("1b_Model_Objects/2024-11-18_amces_ext.rds")
 
 
 ###' *Plot AMCEs* 
 # Extract data frames from the results
-amces_ext <- readRDS("1c_Model_Objects/2024-11-18_amces_ext.rds")
+amces_ext <- readRDS("1b_Model_Objects/2024-11-18_amces_ext.rds")
 
 plot_data <- data.frame(amces_ext$amces$attribute,
                         amces_ext$amces$level,
@@ -334,15 +334,15 @@ var_imps_ext <- het_vimp(imces = imces_ext,
                          covars = covars_of_interest_ext, 
                          cores = 4)
 
-# saveRDS(var_imps_ext, "1c_Model_Objects/2024-11-18_var_imps_ext.rds")
-var_imps_ext <- readRDS("1c_Model_Objects/2024-11-18_var_imps_ext.rds")
+# saveRDS(var_imps_ext, "1b_Model_Objects/2024-11-18_var_imps_ext.rds")
+var_imps_ext <- readRDS("1b_Model_Objects/2024-11-18_var_imps_ext.rds")
 
 
 
 
 
 #####' *Plot Variable Importances*
-var_imps_ext <- readRDS("1c_Model_Objects/2024-11-18_var_imps_ext.rds")
+var_imps_ext <- readRDS("1b_Model_Objects/2024-11-18_var_imps_ext.rds")
 
 ### Plot with off-the-shelf function included in package (as in Paper)
 # plot(var_imps_ext) # not satisfactory 
@@ -497,7 +497,7 @@ ggsave('Manuscript files/figures/RF_VarImps_ext.png')
 
 
 #####' *Fit and plot single decision trees for interpretation*
-imces_ext <- readRDS("1c_Model_Objects/2024-11-18_imces_ext.rds")
+imces_ext <- readRDS("1b_Model_Objects/2024-11-18_imces_ext.rds")
 
 # custom node function to prefent scientific notation in rpart.plot()
 node_fun <- function(x, labs, digits, varlen) {

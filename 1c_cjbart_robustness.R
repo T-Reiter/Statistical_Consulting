@@ -109,7 +109,8 @@ for (iter in no_iterations){
                       seed = seeds[iter],
                       cores = no_of_cores)
   # save model 
-  model_name = paste0("1b1_objects/models/fit_cjbart_s",seeds[iter],'.rds')
+  model_name = paste0("1c_robustness_objects/models/fit_cjbart_s",
+                      seeds[iter],'.rds')
   saveRDS(fit_cjbart, model_name)
   
   print(paste('# Finished model fit', iter, 'of', length(no_iterations)))
@@ -141,7 +142,7 @@ for (iter in no_iterations){
                 alpha = 0.05,
                 cores = no_of_cores)
   # save amces 
-  amce_name = paste0("1b1_objects/amces/amces_s",seeds[iter],'.rds')
+  amce_name = paste0("1c_robustness_objects/amces/amces_s",seeds[iter],'.rds')
   saveRDS(amces, amce_name)
   
   print(paste('# Finished amces', iter, 'of', length(no_iterations)))
@@ -175,7 +176,7 @@ for (iter in no_iterations){
                 , cores = no_of_cores)
   
   # save imces 
-  imce_name = paste0("1b1_objects/imces/imces_s",seeds[iter],'.rds')
+  imce_name = paste0("1c_robustness_objects/imces/imces_s",seeds[iter],'.rds')
   saveRDS(imces, imce_name)
   
   print(paste('# Finished imces', iter, 'of', length(no_iterations)))
@@ -186,14 +187,14 @@ for (iter in no_iterations){
 }
 
 
-
+###' *Plot AMCE Variability across different Modeling Iterations*
 ### Compare the AMCEs across the different draws 
 # Load AMCEs
-amce_files = list.files('1b1_objects/amces/')
+amce_files = list.files('1c_robustness_objects/amces/')
 rm(amce_df)
 for (amce_file in amce_files){
   iter = which(amce_files %in% amce_file)
-  path = paste0('1b1_objects/amces/', amce_file)
+  path = paste0('1c_robustness_objects/amces/', amce_file)
   amce_temp = readRDS(path)
   amce_df_temp = data.frame(amce_temp$amces$attribute,
                             amce_temp$amces$level,
@@ -211,19 +212,8 @@ for (amce_file in amce_files){
   }
 }
 
-# Plot AMCEs of the iterations
-# amce_long <- amce_df %>%
-#   pivot_longer(
-#     cols = starts_with("iter_"), 
-#     names_to = "iteration", 
-#     values_to = "estimate",
-#     mutate(
-#       attribute = recode(attribute, !!!name_mapping),
-#       attribute = factor(attribute, levels = desired_order)
-#     )
-#   )
 
-# Define the mapping from current abbreviated names to desired long names
+# Define Attribute name mapping
 name_mapping <- c(
   "Civ_killed_UKR"      = "Ukrainian civilian casualties",
   "Sold_killed_UKR"     = "Ukrainian military casualties",
@@ -236,7 +226,7 @@ name_mapping <- c(
   "Polit_Self_Det_UKR"  = "Sovereignty"
 )
 
-# Define the desired order of attribute levels
+# Define order of attributes
 desired_order_attributes <- c(
   "Ukrainian military casualties",
   "Russian military casualties",
@@ -249,7 +239,7 @@ desired_order_attributes <- c(
   "Sovereignty"
 )
 
-# Use the global order you specified for attribute levels
+# Define global order attribute levels
 global_order <- c(
   "50,000","25,000", 
   "100,000", "50,000.", 
@@ -288,13 +278,12 @@ ggplot(amce_long, aes(x = estimate, y = attribute_level)) +
     size = 2
   ) +
   facet_wrap(~ attribute, scales = "free_y") +
-  # drop=TRUE ensures only levels present in the data for that facet appear
   scale_y_discrete(drop = TRUE) +
   theme_minimal(base_size = 20) +
   theme(
     axis.text.y = element_text(size = 18),
-    axis.text.x = element_text(size = 18),
-    axis.title.y = element_text(size = 22, face = "bold"),
+    axis.text.x = element_text(size = 16),
+    axis.title.y = element_blank(),
     axis.title.x = element_text(size = 22, face = "bold"),
     plot.title = element_text(size = 28, face = "bold", hjust = 0.5),
     plot.subtitle = element_text(size = 20, hjust = 0.5),
@@ -302,22 +291,22 @@ ggplot(amce_long, aes(x = estimate, y = attribute_level)) +
     strip.background = element_rect(fill = 'gray', colour = 'gray'),
     plot.caption = element_text(size = 16)
   ) +
-  labs(
-    x = "Estimate",
-    y = "Attribute Level"
-  )
+  labs(x = "AMCE Estimate")
+
+ggsave('Manuscript files/figures/Robustness_AMCEs.png', 
+       width = 20, height = 10)
 
 
-#' *IMCEs*
-# Plot IMCE variability for single sample users 
-# Convert your data to long format
+###' *Plot IMCE Variability across 20 Modeling Iterations*
+# IMCE variability for single sample users 
+# Convert data to long format
 
 # Load AMCEs
-imce_files = list.files('1b1_objects/imces/')
+imce_files = list.files('1c_robustness_objects/imces/')
 rm(imce_df)
 for (imce_file in imce_files){
   iter = which(imce_files %in% imce_file)
-  path = paste0('1b1_objects/imces/', imce_file)
+  path = paste0('1c_robustness_objects/imces/', imce_file)
   imce_temp = readRDS(path)
   imce_df_temp = imce_temp$imce
   
@@ -342,7 +331,8 @@ for (imce_file in imce_files){
                            'attribute_level'))
   }
 }
-# --> imces per iteration per person (10011 * 19 --> 20 cols)
+# --> IMCEs per iteration per person 
+# (10011 individuals * 19 levels --> in 20 iterations cols)
 
 # adjust order
 global_order <- c(
@@ -365,7 +355,6 @@ imce_df = merge(levels_mappings,
                 by = 'attribute_level') %>% mutate(
                   attribute_level = factor(attribute_level, levels = rev(global_order)),
                 )
-
 
 random_user <- sample(unique(imce_df$c_id), 1)
 
@@ -393,6 +382,7 @@ ggplot(user_long, aes(x = estimate, y = attribute_level)) +
 
 # other ways to plot global variance
 # Compute summary stats per user and attribute_level
+library(ggridges)
 library(data.table) # switch to data.table for better performance
 DT <- as.data.table(imce_df)
 est_cols <- grep("^imce", names(DT), value = TRUE)
@@ -405,23 +395,9 @@ estimate_summaries <- DT[, {
     sd_val = sd(vals))
 }, by = .(c_id, attribute, attribute_level), .SDcols = est_cols]
 
-# --> estimate summaries: per individial x IMCE we get a range 
+# --> estimate summaries: per individual x IMCE we get a range 
 # should have: 10011 * 19 rows (c_id x attribute_level)
 # correct!
-
-
-library(ggridges)
-# ggplot(estimate_summaries, aes(x = range_val, y = attribute_level)) +
-#   geom_density_ridges(scale = 1, rel_min_height = 0.01, alpha = 0.8) +
-#   theme_minimal() +
-#   labs(
-#     title = "Distribution of within-person IMCE Range across iteration",
-#     x = "Range of Estimates",
-#     y = "Attribute Level"
-#   )
-
-
-
 
 # Also include min/max, mean, median for the ranges per userXattributelevel
 line_data <- estimate_summaries %>%
@@ -449,37 +425,6 @@ mean_amces <- DT[, {
 colnames(mean_amces) = c('attribute_level', 'mean_amce')
 
 
-
-
-# 
-# ggplot(estimate_summaries, aes(x = range_val, y = attribute_level)) +
-#   geom_density_ridges(scale = 1, rel_min_height = 0.01, alpha = 0.8) +
-#   
-#   # Median line red
-#   geom_segment(data = line_data,
-#                aes(x = median_val, xend = median_val,
-#                    y = attr_pos - 0.1, yend = attr_pos + 0.1),
-#                color = "red", size = 0.5) +
-#   
-#   # Mean line blue
-#   # geom_segment(data = line_data,
-#   #              aes(x = mean_val, xend = mean_val,
-#   #                  y = attr_pos - 0.1, yend = attr_pos + 0.1),
-#   #              color = "blue", size = 0.5) +
-#   
-#   
-#   theme_minimal() +
-#   labs(
-#     title = "Distribution of Range Values by Attribute Level",
-#     x = "Range of Estimates",
-#     y = "Attribute Level"
-#   )
-
-
-
-
-
-############
 # Ensure the attribute_level factors match between datasets
 estimate_summaries$attribute_level <- factor(estimate_summaries$attribute_level)
 mean_amces$attribute_level <- factor(mean_amces$attribute_level, 
@@ -494,14 +439,9 @@ library(ggforce)
 # Re-factor attribute_level within each attribute so only relevant levels remain
 estimate_summaries_faceted <- estimate_summaries %>%
   group_by(attribute) %>%
-  mutate(attribute_level = factor(attribute_level, levels = unique(attribute_level))) %>%
+  mutate(attribute_level = factor(attribute_level, levels = 
+                                    unique(attribute_level))) %>%
   ungroup()
-
-# merge estimates summaries with the mean amce and line values 
-estimate
-
-
-
 
 # Plot
 ggplot(estimate_summaries[,c('attribute', 'attribute_level', 'range_val')], 
@@ -521,86 +461,24 @@ ggplot(estimate_summaries[,c('attribute', 'attribute_level', 'range_val')],
         label = paste("AMCE:", round(100*mean_amce, 1), '%')),
     inherit.aes = FALSE,  # Don't use the original aes mapping from the ggplot call
     hjust = 0,            # Align text to the left of the specified x position
-    size = 4
+    size = 5
   ) +
   
-  coord_cartesian(clip = "off", xlim = c(0,12)) + # allow text to appear beyond the plot region if necessary
+  coord_cartesian(clip = "off", xlim = c(0,12)) + # allow text to appear beyond 
+                                                  # the plot region if necessary
   theme_minimal() +
   theme(
-    plot.margin = margin(5, 40, 5, 5)  # Increase right margin if needed
+    plot.margin = margin(5, 40, 5, 5),  # Increase right margin if needed
+    axis.text.y = element_text(size = 14),
+    axis.text.x = element_text(size = 14),
+    axis.title.x = element_text(face='bold', size = 14)
   ) +
   labs(
-    title = "Distribution of within-person IMCE Range across 20 iterations",
+    title = "",
     x = "Range of within-person IMCE Estimates (in Percentage Points)",
-    y = "Attribute Level") # +
-  # ggforce::facet_col(
-  #   facets = "attribute",
-  #   # scales = "free_y",
-  #   # space = "free",
-  #   strip.position = "top"
-  # )
+    y = "Attribute Level") 
 
 
-
-
-
-#############
-# merge estimates summaries with the mean amce and line values 
-estimated_summaries_v2 = merge(
-  estimate_summaries,
-  mean_amces[,c('attribute_level', 'mean_amce')],
-  by = 'attribute_level'
-)
-
-estimated_summaries_v2 = merge(
-  estimated_summaries_v2,
-  line_data[,c('attribute_level', 'mean_range', 'median_range','attr_pos')],
-  by = 'attribute_level'
-)
-
-max_range_val <-10
-text_x_pos <- max_range_val * 1.1
-
-# 
-# # Plot
-# ggplot(estimated_summaries_v2, 
-#        aes(x = range_val*100, y = attribute_level)) +
-#   geom_density_ridges(scale = 1, rel_min_height = 0.01, alpha = 0.8) +
-#   
-#   # Median line red
-#   # geom_segment(data = unique(estimated_summaries_v2[,c('attribute',
-#   #                                                      'attribute_level',
-#   #                                                      'median_range',
-#   #                                                      'attr_pos')]),
-#   #              aes(x = 100*median_range, xend = 100*median_range,
-#   #                  y = attr_pos - 0.1, yend = attr_pos + 0.1),
-#   #              color = "red", size = 0.5) +
-#   
-#   # Add AMCE labels on the right
-#   geom_text(
-#     data = unique(estimated_summaries_v2[,c('attribute_level',
-#                                             'mean_amce')]),
-#     aes(x = text_x_pos, y = attribute_level, 
-#         label = paste("AMCE:", round(100*mean_amce, 1), '%')),
-#     inherit.aes = FALSE,  # Don't use the original aes mapping from the ggplot call
-#     hjust = 0,            # Align text to the left of the specified x position
-#     size = 4
-#   ) +
-#   
-#   coord_cartesian(clip = "off", xlim = c(0,12)) + # allow text to appear beyond the plot region if necessary
-#   theme_minimal() +
-#   theme(
-#     plot.margin = margin(5, 40, 5, 5)  # Increase right margin if needed
-#   ) +
-#   labs(
-#     title = "Distribution of Range Values by Attribute Level",
-#     x = "Range of within-person IMCE Estimates (in Percentage Points)",
-#     y = "Attribute Level") +
-# ggforce::facet_col(
-#   facets = "attribute",
-#   # scales = "free_y",
-#   # space = "free",
-#   strip.position = "top",
-#   drop = TRUE
-# )
+ggsave('Manuscript files/figures/Robustness_IMCEs.png', 
+       width = 20, height = 10)
 
