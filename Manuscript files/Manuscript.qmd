@@ -1,23 +1,57 @@
 ---
 title: "What really matters (and to whom): Investigating heterogeneous effects in high-dimensional conjoint analyses"
 author:
-  - name: Thomas Reiter
-    email: t.reiter@psy.lmu.de
-  - name: Philipp Sterner
-    email: p.sterner@psy.lmu.de
-format: pdf
+  - "Thomas Reiter"
+  - "Philipp Sterner"
+date: "2024-12-20"
+format:
+  pdf:
+    toc: true
+    lof: true
+    lot: true
+    title-page: true
 pdf-engine: xelatex
 header-includes:
   - \usepackage{array}
   - \usepackage{ragged2e}
   - \setlength{\extrarowheight}{2pt}
-  - \renewcommand{\arraystretch}{1.5}  # Adjust row spacing
+  - \renewcommand{\arraystretch}{1.5}
+  - \usepackage{etoolbox}
+  - \usepackage{footmisc}
+  - \pretocmd{\tableofcontents}{\clearpage\setcounter{page}{2}}{}{}
 floatsintext: yes
 bibliography: references.bib
 editor_options: 
   markdown: 
     wrap: sentence
 ---
+
+\newpage
+
+# Abstract
+
+This report explores the application of an advanced statistical model based on Bayesian additive regression trees [*cjbart*\; @robinson_how_2024] model, to analyze effect heterogeneity in high-dimensional conjoint analyses. 
+The primary focus is on examining citizens' preferences from five NATO-member countries --- USA, UK, Germany, Italy, and France --- regarding support for Ukraine amid the Russian aggression. 
+Using conjoint experiment data involving over 10,000 participants, the report investigates how different attributes of support strategies influence decision-making.
+
+Following cjbart approach, we investigate different nested causal quantities.
+The study shows heterogeneity in attribute-level importance influenced by demographic covariates and political opinions, such as participants' nationality, gender, and political attitudes.
+This heterogeneity is further explored using interpretable machine learning techniques, such as variable importance measures of random forests and single decision tree partitioning.
+For example, UK participants differed to other countries with regard to selection probability changes, particularly regarding the impact of civilian casualties and risks of nuclear strikes. 
+Additionally, the attitudes toward general concessions gave rise to differences in selection probabilities.
+
+We discuss methodological caveats, such as robustness of the cjbart model.
+We highlight possible issues such as model convergence and the exploratory interpretation of the analysis. 
+The report concludes that cjbart is a powerful exploratory tool for high-dimensional conjoint data, offering nuanced insights into heterogeneous treatment effects. 
+These findings can be used to generate new hypotheses, informing subsequent confirmatory research and political theory.
+
+
+# Author Contribution
+
+Both authors contributed equally with regard to Formal Analysis, Methodology, Visualization, Writing - Original Draft Preparation, Writing - Review & Editing.
+
+
+\newpage
 
 # Introduction
 
@@ -27,9 +61,8 @@ The two possible options are characterized by certain *attributes* (also: treatm
 By randomly mixing the attribute levels and "forcing" participants to choose one of two options across multiple rounds, researchers are able to estimate the relative importance that participants give to certain attribute levels.
 
 Arguably the most commonly estimated causal quantity in conjoint analyses is the *average marginal component effect* (AMCE).
-The AMCE is the effect of a specific attribute level of interest compared to another level of the same attribute, holding equal the joint distribution of all other attributes and averaged over this joint distribution as well as the sampling distribution from the population [@robinson_how_2024].
+The AMCE is the effect of a specific attribute level of interest compared to a reference level of the same attribute, holding equal the joint distribution of all other attributes and averaged over this joint distribution as well as the sampling distribution from the population [@robinson_how_2024].
 This quantity is estimable by regression models and provides us an effect of an attribute on the probability that a certain option (or profile) will be chosen.
-<!-- TR: compared to the probability of a baseline attribute level -->
 As the name AMCE suggests, this estimate is an average.
 That is, potential differences in effects among participants cannot be considered directly.
 However, this *effect heterogeneity* is often of interest, when trying to determine whether an attribute is equally important to all participants regardless of background covariates (e.g., age, gender, education, etc.) or whether there are subgroup differences.
@@ -38,13 +71,9 @@ Ultimately, it is a question of generalization of results to the entire populati
 The simplest approach to take into account potential effect heterogeneity in conjoint analyses is to estimate the AMCE-models in different subgroups, for example a model for all male and female participants.
 Although appealing due to its simplicity, this approach quickly reaches its limits and has additional downsides.
 First, it is not clear how to a priori define the subgroups let alone how and where to include certain interactions.
-<!-- often lack of theory, risk of multiple testing issue -->
 If a continuous covariate age is included in the data, arbitrary splits into distinct groups are necessary.
 Potential interaction effects would have to be included manually with the likely chance to miss important ones.
-<!-- TR: with this issue increasing exponentially if subgroups are to be defined based on multiple covariates -->
 Needless to say, sample sizes in the subgroups are always smaller than in the whole sample as well, increasing the uncertainty in estimations.
-<!-- Vielleicht diesen allgemeinen high-dim part weiter nach oben zu den attribut levels? -->
-<!-- dann kann man das Fass mit der double high dimensionality hier aufmachen so nach dem Motto, dass die noch kleineren Subgruppen hier das Problem noch schlimmer machen? -->
 This leads to a second issue: conjoint data can quickly become high-dimensional due to many different pairings of different attribute levels (across attributes).
 Consequently, there are more combinations of attribute levels (and thus, possible options) that should be presented to participants than there are actual rounds of choosing per participant.
 This leads to some kind of "double high-dimensionality issue": there are many different attribute (level) combinations *and* many potential covariates characterizing the participants.
@@ -85,10 +114,8 @@ IMCEs can be considered the most important quantity for our purpose of investiga
 In a first step, potential effect heterogeneity is modeled.
 Specifically, some function is estimated that relates the attribute levels of the *L* attributes that were shown to subject *i* in the $k^{th}$ round in profile *j* and the covariate vector $X_i$ to the observed binary outcome $Y_{ijk}$ (which is equal to 1 if the profile was chosen and equal to 0 if it was not chosen).
 @robinson_how_2024 detail this estimation procedure using Bayesian additive regression trees (BART) but other appropriate models that can estimate this potentially complex functional relationship could be used as well.
-<!-- habe hier noch ein bisschen was dazu geschrieben  -->
 BART is a supervised learning model somewhat similar to a boosting procedure: across multiple iterations *B*, *M* small decision trees are trained subsequently, each one aiming to explain the residual variance of the outcome variable which was not explained by the $M-1$ previously grown trees. Moreover, the trees in subsequent iterations are not 'freshly grown' to fit the residuals but instead are grown by randomly perturbing the very same tree of the previous iteration.
 The "Bayesian part" in BART is that parameters are seen as random variables (instead of constants, as would be the case in frequentist approaches). Moreover, priors are placed on growing the trees to favor shallow trees and values in child nodes close to zero.
-<!-- auch noch was zu MCMC?  -->
 An advantage of BART is its robustness to the choice of hyperparameters (e.g., the number of individual trees) but they could be tuned if necessary, for example by cross-validation.
 The data that is used to train the BART are the data resulting from the conjoint experiment; that is, the different choices of profiles as well as the covariates, which are invariant at the individual-level.
 
@@ -102,8 +129,8 @@ By subtracting these results and averaging them over the multiple draws of the p
 ### Step 3: Calculating IMCEs
 
 Following the nested structure of causal quantities outlines above, IMCEs are calculated by averaging the OMCEs for each individual.
-Specifically, the OMCE estimates from step 2 are summed and divided by $J \times K$, that is, the number of profiles times the number of rounds (which is the number of total observations).
-<!-- Sollen wir (wie im Paper) noch dazuschreiben, dass man basierend auf den Posterior Draws der OMCEs auch Credibility Intervals basteln kann, dann würde vielleicht auch der Bayesian Aspekt nochmal betont werden -->
+Specifically, the OMCE estimates from step 2 are summed and divided by $J \times K$, that is, the number of profiles times the number of rounds (which is the number of total observations per person).
+Because the OMCEs result from draws of a posterior distribution, credibility intervals for the IMCE can be constructed by using the empirical quantiles of this distribution.
 
 
 ## Identification of Heterogeneity
@@ -118,8 +145,7 @@ Thereby, they can reveal covariates that drive the heterogeneity as these covari
 
 The first tool uses random forests, an ensemble of decision trees, to investigate which covariates are the important ones in the prediction of differences in the IMCE distributions for all attribute levels (i.e., the effect heterogeneity).
 Specifically, for each attribute level, a random forest is trained where the covariates $X_i$ are used as predictors.
-Subsequently, variable importance measures (VIMPs) are derived to assess which covariates are driving the data partitioning. Briefly, the VIMPs are calculated by permuting the covariates (i.e., by introducing random noise to its values).
-<!-- nit: is random noise introduced (in terms of: added) or more the complete information on the variable destroyed by permuting all the values in X -->
+Subsequently, variable importance measures (VIMPs) are derived to assess which covariates are driving the data partitioning. Briefly, the VIMPs are calculated by permuting the covariates (i.e., by perturbing its values).
 If predictions change noticeably, this is an indication that the covariate is important for predicting the outcome (i.e., IMCE distributions).
 Of note, this is done separately for every combination of covariate and attribute level because the importance of a certain covariate may differ with respect to different attribute levels.
 This results in a comprehensive VIMP-heatmap, which we show as an example in the results section.
@@ -150,8 +176,6 @@ The different attributes, their corresponding levels, and the reference categori
 Additionally, subject-level covariates were assessed, for example, participants' age, gender, political orientation, or their country of origin (of the five countries mentioned above).
 
 
-<!-- falls wir Platz sparen oder die Tabelle auf eine Seite bekommen wollen: Reference Category mit Asterisk oder so anzeichnen, dann haben wir nur 2 Spalten und weniger Zeilenumbrüche vermutlich -->
-<!-- Sollen wir hier noch ihre theoretischen 4 Cluster kurz reinschreiben? Also im Text oder in der Tabelle? Diese Aufteilung in Human Costs, Costs of Aid, Strategic Risks, Containment of Aggression (resolve)? -->
 ```{r attributes, echo=FALSE}
 #| output: asis
 #| label: tbl-attributes
@@ -277,13 +301,13 @@ In the next section, we present the results of these analyses, followed by a dis
 
 # Results
 
+All analyses including a reproducible can be found at \url{https://github.com/T-Reiter/Statistical_Consulting}.
+
 In @fig-amces we present the AMCEs estimated by averaging the IMCEs calculated using the cjbart model. 
 
 ![AMCEs](figures/AMCEs_as_cjbart.png){#fig-amces}
 
 These AMCEs are supplemented with the AMCEs reported in the original article by @rudolph_citizens_2024, presented in @fig-amces-preprint.
- <!-- Vielleicht den Plot aus Ihrem preprint einfach in den Appendix? -->
- <!-- Ich habe den Plot auch nochmal selbst nachgebaut, falls wir das lieber wollen als einfach einen Screenshot zu nehmen -->
 
 ![Preprint AMCEs](figures/AMCEs_Original_Preprint.png){#fig-amces-preprint}
 
@@ -340,26 +364,6 @@ grid <- grid.arrange(
 
 ```
 
-<!-- This is how it should work using quarto syntax but doesnt display captions properly and is weirdly centered -->
-<!-- ::::{#fig-group_label layout-ncol=2 layout-nrow=2} -->
-
-<!-- :::{#firstcol .column width="50%"} -->
-
-<!-- ![test1](figures/DecTree_ext_Civ_killed_Ukr_16k.png){#fig-civ_UKR} -->
-
-<!-- ![test2](figures/DecTree_ext_RUS_Sold_killed_100k.png){#fig-sold_RUS} -->
-<!-- ::: -->
-
-<!-- :::{#secondcol .column width="50%"} -->
-
-<!-- ![test3](figures/DecTree_ext_Risk_Nuke_Moderate.png){#fig-nuke} -->
-<!-- ![test4](figures/DecTree_ext_Territ_Cession_8perc.png){#fig-territ} -->
-<!-- ::: -->
-
-<!-- Exemplary Single Decision Tree Partitions for Predicting IMCEs -->
-<!-- :::: -->
-
-
 
 # Discussion
 
@@ -398,7 +402,7 @@ Accordingly a given AMCE has always to be interpreted as change in profile selec
 This still holds when comparing IMCEs across different subsets of participants, no matter whether these partitions were (or were said-to-be) defined theory-based (as in classical subgroup analysis) or generated in a more data-driven manner (as in the previous approach). 
 Accordingly the average IMCEs in the different terminal nodes of the decision trees are always relative to the baseline profile selection probability taking into account the reference level *and* the subgroups of participants. 
 In order to reason about the absolute selection probability for a given attribute level using the associated AMCE, the absolute selection probability for the respective reference level must be known. 
-The often applied approach of calculating marginal means, provides exactly these marginalized absolute profile selection probabilities for different attribute levels. 
+The often applied approach of calculating marginal means provides exactly these marginalized absolute profile selection probabilities for different attribute levels. 
 This allows for straightforward reading off the absolute profile selection probabilities. 
 However, as marginal means are solely descriptive, they do not allow for any causal interpretation. 
 Accordingly, whether AMCEs or marginal means are used should be guided by the kind of conclusions that shall be made. 
@@ -447,7 +451,7 @@ In our analyses, we used the default values of these hyperparameters (50 trees a
 However, it would also be possible to tune these values, that is, to try out different settings and choose the most optimal values (with respect to some evaluation metric).
 Because tuning hyperparameters can be computationally expensive, it is an interesting topic of future methodological research to assess whether tuning in the case of cjbart is worth the additional computational burden.
 Tuning hyperparameters would also be possible for the random forest when calculating variable importances.
-However, random forests have been shown to have good performance with default values of its hyperparameters (CITE), so we believe the focus should be on the hyperparameters of the upstream BART model.
+However, random forests have been shown to have good performance with default values of its hyperparameters [@strobl2009introduction], so we believe the focus should be on the hyperparameters of the upstream BART model.
 
 [^seed]: It should be highlighted that the function-internal seed does not work on machines with a Windows operating system. Consequently, each function call to *cjbart()* might result in (slightly) different results.
 
@@ -463,6 +467,8 @@ It might be a good strategy to estimate the model with different numbers of clus
 to choose a solution.
 However, this should be made with caution to not let post-hoc explanation guide the decision.
 Future research concerning FactorHet could develop model selection strategies, like information criteria, that are comparable across solutions with differing numbers of clusters and allow for a statistical decision.
+We complemented our analyses with an exemplary run of the FactorHet method.
+The results of this analysis (with a two- and three-cluster solution) can be found in Appendix A6.
 The other method, CRT by @ham_using_2024, is a statistical hypothesis testing approach based on conditional randomization tests.
 The goal of this approach is to assess whether a specific attribute of interest influences participants' choice behavior in any way, given all the other attributes.
 The advantage of CRT is that this answers the most basic question one can ask in conjoint experiments, while being assumption-free.
@@ -471,6 +477,24 @@ However, in these analyses, it remains challenging to investigate the influence 
 Taken together, all novel approaches have their own strengths and weaknesses when trying to unravel heterogeneity in attribute level effects.
 As in every statistical analysis, the choice of methods and models crucially depends on the research question and desired inferences one wants to make.
 Because our goal was to complement the existing analyses reported by @rudolph_citizens_2024 with a maximally exploratory approach, potentially informing future more confirmatory research, we found that cjbart best fits this purpose.
+
+
+## A Note on Robustness
+
+In the course of the project, our project partner and we noticed that solutions of cjbart differ (slightly) when rerunning the analysis (using different seeds or no prespecified seed on Windows machines).
+One possible reason was that the models failed to converge.
+To investigate this issue in more detail, we reran the analysis 20 times (i.e., estimating the model with BART and extracting the OMCEs/IMCEs/AMCEs).
+The results of this analysis can be found in appendices A1-5.
+In A1, the point estimates of AMCEs across the 20 iterations are displayed.
+As can be seen, AMCEs do not fluctuate noticeably.
+When looking at the ranges of IMCEs per person (A2), we observe that the IMCEs for some attributes fluctuate by around five to seven percentage points (most noticeably for attributes "Territorial cessions of Ukraine to Russia" and "How much political self-determination of Ukraine").
+Because we assumed that failed convergence might be an issue, we explored exemplary traceplots, showing the draws from the reference level and the level of interest posterior distribution (the difference of which corresponds to the OMCE).
+These traceplots are shown in A3 and A4.
+We can see that for none of the displayed chains, the values of draws converge to a stable value which in turn leads to fluctuations in OMCEs.
+This is the case for both the default sized model and a larger model with increased burn-in and posterior draws.
+Consequently, the model seems to have convergence issues.
+This finding is corroborated by the figure in A5, which shows the distribution of p-values for the Geweke's test [@geweke1992evaluating] whether the Markov chain converged (where the null hypothesis can be interpreted as convergence).
+Thus, we would be cautious to interpret IMCE results, especially for attributes which show a high range of person-specific IMCEs in A2. 
 
 
 # Conclusion
@@ -482,7 +506,7 @@ Similarly, the opinion that Ukraine should not make any concessions to Russia to
 People who oppose concessions favored profiles that were associated with higher numbers of killed Russian soldiers, while for concession proponents the selection probability decreased.
 
 With AMCE estimates similar to the primary analysis reported by @rudolph_citizens_2024, we believe that the newly developed cjbart-method provides a powerful tool to investigate effect heterogeneity in high-dimensional conjoint data.
-As with any new method, further methodological research is needed to assess to capabilities of the method under different conditions.
+As with any new method, further methodological research is needed to assess the capabilities of the method under different conditions.
 Most importantly, the results of cjbart should always be interpreted as what they are: an exploratory peek into underlying causal relations between covariates and individual preferences for certain attributes (i.e., IMCEs).
 Our recommendation is to use these exploratory insights to generate hypotheses that can subsequently be tested to inform political theory.
 
@@ -559,7 +583,7 @@ col_header2_combined <- arrangeGrob(col_header2, col_subheader2, ncol=1,
                                     heights=c(unit(0.5,"lines"), unit(0.5,"lines")))
 
 # Single grobs for rows with newline and adjusted lineheight
-row_header_combined_1 <- textGrob(paste0("p_hat_0\n",
+row_header_combined_1 <- textGrob(paste0("$p^{hat}_{0}$\n",
                                          "phat_0[,1]"), x=0, hjust=0, 
                                   gp=gpar(fontsize=10, lineheight=1))
 row_header_combined_2 <- textGrob(paste0("p_hat_1\n",
