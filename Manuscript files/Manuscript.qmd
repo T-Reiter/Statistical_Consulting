@@ -1,16 +1,36 @@
 ---
 title: "What really matters (and to whom): Investigating heterogeneous effects in high-dimensional conjoint analyses"
+
 author:
-  - "Thomas Reiter"
-  - "Philipp Sterner"
+  - name: "Thomas Reiter"
+    affiliations: [stat-consulting]
+  - name: "Philipp Sterner"
+    affiliations: [stat-consulting]
+
+affiliations:
+  - id: stat-consulting
+    name: "Statistical Consulting, Master Statistics and Data Science, LMU Munich, Institute of Statistics"
+
+abstract: |
+  **Supervisor:** Prof. Dr. David Rügamer
+
+  **Project Partners:** Prof. Dr. Paul Thurner and Fabian Haggerty  
+  (Geschwister Scholl Institute of Political Science)
+
 date: "2024-12-20"
+
 format:
   pdf:
     toc: true
     lof: true
     lot: true
     title-page: true
+    title-block-style: fancy
+    # Ensure the order: title, authors, affiliations, abstract, date
+    title-block-components: [title, author, affiliations, abstract, date]
+
 pdf-engine: xelatex
+
 header-includes:
   - \usepackage{array}
   - \usepackage{ragged2e}
@@ -19,10 +39,11 @@ header-includes:
   - \usepackage{etoolbox}
   - \usepackage{footmisc}
   - \pretocmd{\tableofcontents}{\clearpage\setcounter{page}{2}}{}{}
+
 floatsintext: yes
 bibliography: references.bib
-editor_options: 
-  markdown: 
+editor_options:
+  markdown:
     wrap: sentence
 ---
 
