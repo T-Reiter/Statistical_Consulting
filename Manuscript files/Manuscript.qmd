@@ -282,16 +282,11 @@ In @fig-amces we present the AMCEs estimated by averaging the IMCEs calculated u
 ![AMCEs](figures/AMCEs_as_cjbart.png){#fig-amces}
 
 These AMCEs are supplemented with the AMCEs reported in the original article by @rudolph_citizens_2024, presented in @fig-amces-preprint.
+ <!-- Vielleicht den Plot aus Ihrem preprint einfach in den Appendix? -->
+ <!-- Ich habe den Plot auch nochmal selbst nachgebaut, falls wir das lieber wollen als einfach einen Screenshot zu nehmen -->
 
 ![Preprint AMCEs](figures/AMCEs_Original_Preprint.png){#fig-amces-preprint}
 
-<!-- Aproach to get the 2 figures on the same page...  -->
-<!-- ::: {.figure} -->
-<!--   ![AMCEs](figures/AMCEs_as_cjbart.png){#fig-amces width="100%"} -->
-
-<!--   ![Preprint AMCEs](figures/AMCEs_Original_Preprint.png){#fig-amces-preprint width="100%"} -->
-
-<!-- ::: -->
 
 
 @fig-varimps-ext displays the variable importance measures for the subject-level covariates as extracted from the cjbart model. 
@@ -496,8 +491,25 @@ Our recommendation is to use these exploratory insights to generate hypotheses t
 
 
 # Appendix
-## A1 Convergence Diagnostics - Attribute: Ukrainian Soldiers Killed 
 
+## A1 AMCE Stability across Multiple Model Fitting Iterations
+
+::: {#amce-robustness style="text-align:left;"}
+![Stability of AMCE Point Estimates](figures/Robustness_AMCEs.png)
+Note. AMCE point estimates across 20 model fitting iterations using different seed values.\
+:::
+
+
+## A2 IMCE Stability across Multiple Model Fitting Iterations
+::: {#imce-robustness style="text-align:left;"}
+
+![Within-Individual Variability of IMCE Estimates](figures/Robustness_IMCEs.png)
+
+Note. Distribution of Within-Person IMCE Range across 20 model fitting iterations using different seed values. Each data point used to generate the empirical distribution describes the range of the IMCE values calculated for each individuals' IMCEs.
+:::
+
+
+## A3 Convergence Diagnostic Traceplot - Attribute: Ukrainian Soldiers Killed 
 ```{r convergence-diagnostics-usk, echo=FALSE, fig.align='center', fig.fullwidth=TRUE, out.width="100%"}
 #| fig-subcap: "Exemplary Posterior Draw Traceplots for Convergence Assessment - Attribute 1"
 #| fig-cap: "Note. Rows 1 and 2 display Traceplots of Draws from the BART Posterior Distribution for the selection probabilities (p_hat_0 and p_hat_1) if Attribute 1 (Ukrainian Military Casualties) was set to the reference level (i.e., 12,500) or first level of interest (i.e., 25,000). Row 3 represents the associated OMCE 'draws' calculcate by taking the different of p_hat_1 and p_hat_0. Columns 1 and 2 contain draws from the default sized BART model (Burn-In: 100, Posterior Draws: 1000) and larger BART Models (Burn-In: 1000, Posterior Draws: 5000)\\linebreak Models were fit using parallel computation on 4 cores."
@@ -568,7 +580,7 @@ grid.arrange(
 )
 ```
 
-## A2 Convergence Diagnostics - Attribute: Sovereignity 
+## A4 Convergence Diagnostic Traceplot - Attribute: Sovereignity 
 
 ```{r convergence-diagnostics-sov, echo=FALSE, fig.align='center', fig.fullwidth=TRUE, out.width="100%"}
 #| fig-subcap: "Exemplary Posterior Draw Traceplots for Convergence Assessment - Attribute 9"
@@ -640,6 +652,8 @@ grid.arrange(
 )
 ```
 
+## A5 Convergence Diagnostics - Geweke's Diagnostic Criterion 
+
 ```{r convergence-diagnostics-geweke, echo=FALSE, fig.align='center', fig.fullwidth=TRUE, out.width="100%"}
 #| fig-subcap: "P-Value Distribution of Geweke's Diagnostic Test for 100 Sample MCMC Draws"
 #| fig-cap: "Note. Images display the p-value distribution of Geweke's Convergence Diagnostic Test (as implemented in r package BART) applied to a random sample of 100 Random Markov Chains as generated using the BART model with larger-than-default values for Burn-In and Posterior Draws. Geweke's Test is used for diagnosing Markov Chain convergence via testing equality of means of the 10 and last 50 percent (default values) of the posterior draws."
@@ -709,6 +723,22 @@ grid.arrange(
   heights=c(3,3,3,3)
 )
 ```
+
+## A6 2-Cluster Solution of the FactorHet Models
+::: {#imce-robustness style="text-align:left;"}
+
+![FactorHet 2-Cluster Solution](figures/2024-12-06_FactorHet_2C_AMCEs.png)
+
+Note. AMCEs estimated using a FactorHet Model with a pre-set number of 2 clusters.
+:::
+
+## A6 3-Cluster Solution of the FactorHet Models
+::: {#imce-robustness style="text-align:left;"}
+
+![FactorHet 3-Cluster Solution](figures/2024-12-06_FactorHet_3C_AMCEs.png)
+
+Note. AMCEs estimated using a FactorHet Model with a pre-set number of 3 clusters.
+:::
 
 
 \newpage
