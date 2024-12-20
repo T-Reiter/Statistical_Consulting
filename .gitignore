@@ -7,8 +7,8 @@
 0_Ukraine_Conjoint_Data
 
 # Model Objects
-1c_Model_Objects/
-1b_robustness_objects/
+1b_Model_Objects/
+1c_robustness_objects/
 
 # Manuscript Files
 manuscript.pdf
