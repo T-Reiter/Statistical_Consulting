@@ -322,7 +322,7 @@ In the next section, we present the results of these analyses, followed by a dis
 
 # Results
 
-All analyses including a reproducible can be found at \url{https://github.com/T-Reiter/Statistical_Consulting}.
+The code to reproduce the analyses can be found at \url{https://github.com/T-Reiter/Statistical_Consulting}.
 
 In @fig-amces we present the AMCEs estimated by averaging the IMCEs calculated using the cjbart model. 
 
